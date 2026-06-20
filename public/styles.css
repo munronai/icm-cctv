@@ -194,3 +194,7 @@ body {
   border-color: rgba(255, 255, 255, 0.15);
 }
 
+body.dragging-active iframe {
+  pointer-events: none !important;
+}
+

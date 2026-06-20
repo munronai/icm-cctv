@@ -240,6 +240,7 @@ function dragify(card, handle, a, mode) {
     if (a.pinned) return;
     e.preventDefault(); handle.setPointerCapture?.(e.pointerId);
     card.classList.add("dragging");
+    document.body.classList.add("dragging-active");
     const sx = e.clientX, sy = e.clientY, ox = a.x, oy = a.y, ow = a.w, oh = a.h;
     a.z = Math.max(0, ...(state.screens[active] || []).map((x) => x.z)) + 1;
     card.style.zIndex = a.z;
@@ -248,7 +249,14 @@ function dragify(card, handle, a, mode) {
       if (mode === "move") { a.x = Math.max(0, ox + dx); a.y = Math.max(0, oy + dy); card.style.left = a.x + "px"; card.style.top = a.y + "px"; }
       else { a.w = Math.max(200, ow + dx); a.h = Math.max(120, oh + dy); card.style.width = a.w + "px"; card.style.height = a.h + "px"; }
     };
-    const up = () => { card.classList.remove("dragging"); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); saveLayout(); };
+    const up = () => {
+      card.classList.remove("dragging");
+      document.body.classList.remove("dragging-active");
+      handle.releasePointerCapture?.(e.pointerId);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      saveLayout();
+    };
     window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
   });
 }
@@ -325,6 +333,28 @@ themeToggleBtn.addEventListener("click", () => {
 });
 
 initTheme();
+
+// Keyboard steering support in parent window for gta-chase screen
+window.addEventListener("keydown", async (e) => {
+  if (active !== "gta-chase") return;
+  const key = e.key.toLowerCase();
+  let direction = null;
+  if (e.key === "ArrowLeft" || key === "a") direction = "left";
+  else if (e.key === "ArrowRight" || key === "d") direction = "right";
+  else if (e.key === "ArrowUp" || key === "w") direction = "straight";
+
+  if (direction) {
+    e.preventDefault();
+    try {
+      await fetch("/api/content", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ screen: active, id: "003-command", body: direction })
+      });
+      statusEl.textContent = `keyboard steering command written to 003-command.md → ${direction}`;
+    } catch (err) {}
+  }
+});
 
 function connect() {
   const ws = new WebSocket(`ws://${location.host}`);

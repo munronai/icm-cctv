@@ -87,10 +87,11 @@ status: running
             // Distance to intersection
             const d = Math.hypot(this.x - jx, this.y - jy);
 
-            // If we are close enough, snap to it and make a decision
-            if (d < SPEED * 0.6) {
+            // If we are close enough, snap to it and make a decision (radius 0.95 * SPEED guarantees capture)
+            if (d < SPEED * 0.95) {
               // Only trigger decision if we aren't already locked
               if (this.ix !== ix || this.iy !== iy) {
+                console.log("[Simulation] Snapping to intersection:", ix, iy, "pendingCommand:", pendingCommand);
                 this.x = jx;
                 this.y = jy;
                 this.ix = ix;
@@ -267,12 +268,13 @@ status: running
         if (ctrl) {
           const updated = ctrl.updated || ctrl.body;
           if (updated !== lastCommandTimestamp) {
+            console.log("[Simulation] Received new steer command:", ctrl.body, "updated at:", updated);
             lastCommandTimestamp = updated;
             const cmd = ctrl.body.trim().toLowerCase();
-            if (cmd === 'left' || cmd === 'right') {
-              pendingCommand = cmd;
+            if (cmd === 'left' || cmd === 'right' || cmd === 'straight') {
+              pendingCommand = cmd === 'straight' ? null : cmd;
               document.getElementById('next-turn').textContent = cmd.toUpperCase();
-              document.getElementById('next-turn').className = "text-emerald-400 font-bold";
+              document.getElementById('next-turn').className = cmd === 'straight' ? "text-yellow-400" : "text-emerald-400 font-bold";
             }
           }
         }

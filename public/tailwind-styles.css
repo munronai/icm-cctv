@@ -839,6 +839,9 @@
     background-size: 28px 28px;
     background-color: var(--background);
   }
+  body.dragging-active iframe {
+    pointer-events: none !important;
+  }
 }
 @property --tw-border-style {
   syntax: "*";

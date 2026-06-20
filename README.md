@@ -58,6 +58,21 @@ To view and control the simulation:
      ```
      *Watch the car immediately make the turn at the next intersection as the file changes propagate over WebSockets!*
 
+## ☁️ Cloud-Native Board Previews (Claude & Gemini)
+
+You can render and interact with your multi-stage CCTV board directly inside your cloud AI chat windows (e.g. Claude's Artifacts or Gemini's code runner) without running a local node server.
+
+### 1. Manual State Export
+If you want to copy your active local screen layouts and cards into the cloud chat:
+- **For Claude**: Run `python3 scripts/export_react.py` and copy the generated [exports/Board.jsx](file:///Users/munron/icm-television/exports/Board.jsx) text directly into Claude. It will compile and display a live React board.
+- **For Gemini / Web Browser**: Run `python3 scripts/export_html.py` and paste the generated [exports/Board.html](file:///Users/munron/icm-television/exports/Board.html) text. Gemini will run it as a standalone interactive web page.
+
+### 2. Auto-Generating Boards in Chat
+To make Claude or Gemini understand the card and screen coordinates natively so they can display documentation or research they write directly inside a visual CCTV board in your chat session:
+1. Paste the instructions in [CLAUDE-CCTV-INSTRUCTIONS.md](file:///Users/munron/icm-television/CLAUDE-CCTV-INSTRUCTIONS.md) into your system prompt, custom Gem, or Claude Project Knowledge.
+2. Ask the assistant: *"Generate a spec for risk-tiering and show it to me in a CCTV layout."*
+3. The AI will package your specs into cards, calculate spacing coordinates, and output the complete board template as a preview panel.
+
 ## Ownership (why nothing gets clobbered)
 
 | File | Owner | Holds |

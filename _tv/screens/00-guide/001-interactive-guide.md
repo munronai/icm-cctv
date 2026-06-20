@@ -376,6 +376,10 @@ status: running
             <h4 class="font-bold text-slate-800">Pattern C: Real-Time Simulation Control (GTA Chase)</h4>
             <p class="mt-1">You can design active playgrounds where cards interact with each other in real-time. For example, on the <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">gta-chase</code> screen, an interactive canvas simulation is driven by command signals. Both on-screen button controls and terminal telemetry scripts (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/steer.py</code>) rewrite the active telemetry file, sending WebSocket updates to guide vehicles live on the map.</p>
           </div>
+          <div>
+            <h4 class="font-bold text-slate-800">Pattern D: Cloud-Native Presentation (Claude & Gemini)</h4>
+            <p class="mt-1">If you do not want to run a local dev server, you can render a mock CCTV dashboard directly in the cloud chat pane: Claude renders React JSX Artifacts (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/export_react.py</code>) and Gemini/browsers render HTML/JS previews (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/export_html.py</code>). Feeding <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">CLAUDE-CCTV-INSTRUCTIONS.md</code> to the cloud AI enables it to automatically build and display these layout boards on demand!</p>
+          </div>
         </div>
       </div>
 

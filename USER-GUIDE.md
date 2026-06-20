@@ -114,6 +114,14 @@ By positioning these in two parallel columns (`_layout.json`), you get a dashboa
 
 ---
 
+### Pattern 4: Cloud-Native Presentation (Claude & Gemini Artifacts)
+If you do not want to run a local dev server, you can render a mock CCTV dashboard directly in the cloud chat pane:
+- **Claude**: Renders raw React components (`Board.jsx`) natively in its **Artifacts** pane. Run `python3 scripts/export_react.py` to compile your current screen states, and paste it to Claude.
+- **Gemini**: Renders HTML/JS files (`Board.html`) natively inside its **Code Preview** panel. Run `python3 scripts/export_html.py` to compile your screens, and paste the HTML code to Gemini.
+- **Auto-Generation**: Provide the instructions in [CLAUDE-CCTV-INSTRUCTIONS.md](file:///Users/munron/icm-television/CLAUDE-CCTV-INSTRUCTIONS.md) to the AI's instructions. When you ask the AI to write documents (e.g. specs, summaries), it will automatically wrap them into cards and display the visual dashboard live in the chat!
+
+---
+
 ## 🤝 How Your AI Agent Interacts
 
 When your agent runs a stage:

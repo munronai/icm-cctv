@@ -27,6 +27,18 @@ This is the same filesystem-as-interface idea ICM already uses for control
 flow — here it drives presentation instead. ICM decides *what the agent does*;
 this decides *what you see*. Both halves meet on plain files.
 
+## 🎮 Interactive User Guide & Playground
+
+CCTV comes with a built-in, fully interactive user manual and playground directly on the board! 
+
+When you start the server and open the board in your browser, select the **`00-guide`** tab in the header. Inside this playground, you can:
+- **Sandbox Controls**: Experiment with buttons, range sliders, and radio selectors, and watch the **Live JSON Payload** box update in real time to see exactly what payload structure would be written to the filesystem.
+- **SVG Chart Sandbox**: Drag sliders to adjust Accuracy, Speed, or Safety metrics, and watch the SVG coordinates recalculate and redraw the bar heights and label coordinates live.
+- **Card UI Wizard**: Design custom forms or checkpoints by configuring input values in a wizard to generate copy-pasteable Markdown cards immediately.
+- **Screen Layout Wizard**: Enter stage names to automatically generate a step-by-step checklist of shell commands and calculate the coordinate blocks for `_layout.json` (such as the side-by-side 2-card pattern).
+- **Code Templates**: Access copy-pasteable HTML snippets for range sliders, radio buttons, choices, or charts.
+- **Full User Guide**: Read the entire [USER-GUIDE.md](file:///Users/munron/icm-television/USER-GUIDE.md) text directly on your board.
+
 ## Ownership (why nothing gets clobbered)
 
 | File | Owner | Holds |

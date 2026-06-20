@@ -1,0 +1,81 @@
+@import "tw-animate-css";
+
+@import "tailwindcss" source(none);
+
+@source "../src";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-panel: var(--panel);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-terminal-bg: var(--terminal-bg);
+  --color-terminal-fg: var(--terminal-fg);
+  --color-border: var(--border);
+  --font-sans: "Inter", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --font-mono: "Roboto Mono", Menlo, "Source Code Pro", monospace;
+
+  /* Additional colors mapping for status badges */
+  --color-done: var(--done);
+  --color-blocked: var(--blocked);
+}
+
+:root {
+  --background: oklch(0 0 0);
+  --foreground: oklch(0 0 0);
+  --panel: oklch(1 0 0);
+  --accent-yellow: oklch(0.97 0.21 110);
+  --terminal-bg: oklch(0 0 0);
+  --terminal-fg: oklch(1 0 0);
+  --border: oklch(0 0 0);
+  --done: #6f9e6a;
+  --blocked: #c2683f;
+}
+
+@layer base {
+  html,
+  body {
+    background-color: #000000;
+    color: #000000;
+    font-family: var(--font-sans);
+    font-weight: 400;
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+  .card-body iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+}
+
+@keyframes terminal-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.cursor-blink {
+  display: inline-block;
+  width: 0.55ch;
+  background: #ffffff;
+  animation: terminal-blink 1s steps(1) infinite;
+  margin-left: 2px;
+}
+
+@layer utilities {
+  .board-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-color: var(--background);
+  }
+}

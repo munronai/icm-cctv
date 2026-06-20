@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ICM CCTV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;450;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" id="theme-link" />
+</head>
+<body class="h-full m-0 overflow-hidden bg-background text-foreground transition-colors duration-200">
+  <header class="rail h-[52px] flex items-center justify-between px-[18px] bg-terminal-bg border-b border-border relative z-5">
+    <div class="brand flex items-baseline gap-3">
+      <span class="led w-[9px] h-[9px] rounded-full self-center bg-[#4a4d50] transition-colors duration-300" id="led" title="connection"></span>
+      <span class="wordmark font-sans font-semibold tracking-wide text-[15px] text-terminal-fg">ICM&nbsp;CCTV</span>
+      <span class="sub font-mono text-[11px] text-terminal-fg/60">renderer watching <code class="text-accent-yellow font-mono">_tv/screens</code></span>
+    </div>
+    <div class="flex items-center gap-3">
+      <nav class="screens flex gap-1" id="screens"></nav>
+      <button id="theme-toggle" class="theme-btn font-mono text-[11.5px] px-3 py-1.5 rounded border border-border bg-terminal-bg text-terminal-fg cursor-pointer transition-colors duration-150 hover:bg-terminal-fg hover:text-terminal-bg" title="Switch between Classic and Tailwind stylesheets">Style: Classic</button>
+    </div>
+  </header>
+  <main class="board absolute top-[52px] bottom-[26px] left-0 right-0 overflow-auto bg-background board-grid" id="board"></main>
+  <footer class="status absolute left-0 right-0 bottom-0 h-[26px] flex items-center gap-3.5 px-4 bg-terminal-bg border-t border-border font-mono text-[11px] text-terminal-fg/60" id="status">waiting for renderer…</footer>
+  <script src="/app.js"></script>
+</body>
+</html>

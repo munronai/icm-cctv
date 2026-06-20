@@ -1,0 +1,565 @@
+---
+id: 001-interactive-guide
+title: CCTV Interactive Guide & Sandbox
+type: interactive
+status: running
+---
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accentYellow: '#e0a23c',
+            doneGreen: '#6f9e6a',
+            blockedRed: '#c2683f'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-800 p-4 font-sans h-full flex flex-col antialiased">
+  <div class="mb-3 shrink-0">
+    <h1 class="text-base font-bold text-slate-900 flex items-center gap-2">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-accentYellow animate-pulse"></span>
+      CCTV Interactive Guide & Playbook
+    </h1>
+    <p class="text-xs text-slate-500 mt-0.5">Build cards, set up screens, and copy code templates dynamically below.</p>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="flex border-b border-slate-200 text-[11px] font-semibold mb-3 gap-0.5 shrink-0 overflow-x-auto whitespace-nowrap pb-1">
+    <button onclick="switchTab('playground')" id="tab-playground" class="px-2.5 py-1.5 border-b-2 border-accentYellow text-slate-900 -mb-[2px] transition-all">1. Controls Sandbox</button>
+    <button onclick="switchTab('charts')" id="tab-charts" class="px-2.5 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 -mb-[2px] transition-all">2. SVG Playground</button>
+    <button onclick="switchTab('wizard-card')" id="tab-wizard-card" class="px-2.5 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 -mb-[2px] transition-all font-bold text-emerald-600">3. Card UI Wizard</button>
+    <button onclick="switchTab('wizard-screen')" id="tab-wizard-screen" class="px-2.5 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 -mb-[2px] transition-all font-bold text-emerald-600">4. Screen Wizard</button>
+    <button onclick="switchTab('cookbook')" id="tab-cookbook" class="px-2.5 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 -mb-[2px] transition-all">5. Code Templates</button>
+    <button onclick="switchTab('guide')" id="tab-guide" class="px-2.5 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 -mb-[2px] transition-all">6. Full User Guide</button>
+  </div>
+
+  <!-- Tab 1: Playground -->
+  <div id="content-playground" class="flex-1 flex flex-col gap-3 min-h-0">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1 min-h-0 overflow-auto">
+      <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col gap-2.5">
+        <h2 class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sandbox Controls</h2>
+        
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">Choice Buttons</label>
+          <div class="flex gap-2">
+            <button onclick="updateSelection('Approve')" class="flex-1 py-1.5 text-xs font-medium border border-slate-200 rounded-md hover:bg-slate-50 active:bg-slate-100 transition-colors">Approve</button>
+            <button onclick="updateSelection('Reject')" class="flex-1 py-1.5 text-xs font-medium border border-slate-200 rounded-md hover:bg-slate-50 active:bg-slate-100 transition-colors">Reject</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-[11px] font-bold text-slate-600 mb-0.5">
+            <span>Range Slider</span>
+            <span id="slider-txt" class="text-accentYellow font-bold">50%</span>
+          </div>
+          <input type="range" id="sandbox-slider" min="0" max="100" value="50" oninput="updateSlider(this.value)" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Radio Selectors</label>
+          <div class="flex gap-4 text-xs">
+            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="priority" value="low" onclick="updateRadio(this.value)"> Low</label>
+            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="priority" value="medium" checked onclick="updateRadio(this.value)"> Medium</label>
+            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="priority" value="high" onclick="updateRadio(this.value)"> High</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 text-slate-300 p-3 rounded-lg flex flex-col font-mono text-[11px] shadow-sm justify-between">
+        <div class="min-h-0 overflow-auto">
+          <div class="flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-wider mb-2 border-b border-slate-800 pb-1">
+            <span>Payload output preview</span>
+            <span class="text-emerald-400 font-bold">LIVE</span>
+          </div>
+          <pre id="payload-preview" class="text-slate-100 leading-tight">{\n  "selection": "None",\n  "sliderValue": 50,\n  "priority": "medium"\n}</pre>
+        </div>
+        <div class="border-t border-slate-800 pt-2 mt-2 flex flex-col gap-1.5 shrink-0">
+          <p class="text-[9px] text-slate-400">Submit this response back to the active stage response directory:</p>
+          <button onclick="sendPayload()" class="w-full bg-accentYellow hover:bg-amber-500 text-slate-900 font-bold py-1.5 rounded text-xs transition-colors flex items-center justify-center gap-1">
+            Submit response bridge
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Charts -->
+  <div id="content-charts" class="flex-1 flex flex-col gap-3 min-h-0 hidden">
+    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col gap-3 flex-1 min-h-0 overflow-auto">
+      <h2 class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Interactive SVG Visualizer</h2>
+      
+      <div class="grid grid-cols-3 gap-3 shrink-0">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 mb-0.5">BAR A (Accuracy)</label>
+          <input type="range" min="10" max="100" value="75" oninput="updateChartBar('a', this.value)" class="w-full">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 mb-0.5">BAR B (Speed)</label>
+          <input type="range" min="10" max="100" value="90" oninput="updateChartBar('b', this.value)" class="w-full">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 mb-0.5">BAR C (Safety)</label>
+          <input type="range" min="10" max="100" value="55" oninput="updateChartBar('c', this.value)" class="w-full">
+        </div>
+      </div>
+
+      <div class="flex-1 flex justify-center border-t border-slate-100 pt-3 min-h-0">
+        <svg viewBox="0 0 200 100" class="w-full max-w-[260px] h-full">
+          <line x1="10" y1="90" x2="190" y2="90" stroke="#cbd5e1" stroke-width="1.5"></line>
+          
+          <rect id="bar-a" x="25" y="30" width="30" height="60" fill="#e0a23c" rx="2" class="transition-all duration-150" />
+          <text id="lbl-a" x="40" y="24" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">75%</text>
+          <text x="40" y="98" font-size="7" font-weight="bold" text-anchor="middle" fill="#64748b">Accuracy</text>
+          
+          <rect id="bar-b" x="85" y="18" width="30" height="72" fill="#6f9e6a" rx="2" class="transition-all duration-150" />
+          <text id="lbl-b" x="100" y="12" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">90%</text>
+          <text x="100" y="98" font-size="7" font-weight="bold" text-anchor="middle" fill="#64748b">Speed</text>
+          
+          <rect id="bar-c" x="145" y="46" width="30" height="44" fill="#c2683f" rx="2" class="transition-all duration-150" />
+          <text id="lbl-c" x="160" y="40" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">55%</text>
+          <text x="160" y="98" font-size="7" font-weight="bold" text-anchor="middle" fill="#64748b">Safety</text>
+        </svg>
+      </div>
+      <p class="text-[9px] text-slate-400 text-center italic shrink-0">Drag sliders to adjust SVG bar heights and label positions dynamically.</p>
+    </div>
+  </div>
+
+  <!-- Tab 3: Card UI Creator Wizard (New!) -->
+  <div id="content-wizard-card" class="flex-1 flex flex-col gap-3 min-h-0 hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1 min-h-0 overflow-auto">
+      <!-- Input Panel -->
+      <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col gap-2.5 overflow-y-auto">
+        <h2 class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Card Configuration</h2>
+        
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-0.5">Screen Folder</label>
+            <input type="text" id="wiz-card-screen" value="demo" class="w-full p-1 border rounded focus:outline-none focus:border-accentYellow">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-0.5">Card Filename</label>
+            <input type="text" id="wiz-card-id" value="002-checkpoint" class="w-full p-1 border rounded focus:outline-none focus:border-accentYellow">
+          </div>
+        </div>
+
+        <div class="text-xs">
+          <label class="block font-semibold text-slate-600 mb-0.5">Card Title</label>
+          <input type="text" id="wiz-card-title" value="Pipeline Decision" class="w-full p-1 border rounded focus:outline-none focus:border-accentYellow">
+        </div>
+
+        <div class="text-xs">
+          <label class="block font-semibold text-slate-600 mb-0.5">User Prompt Question</label>
+          <input type="text" id="wiz-card-prompt" value="Select the path forward:" class="w-full p-1 border rounded focus:outline-none focus:border-accentYellow">
+        </div>
+
+        <div class="text-xs">
+          <label class="block font-semibold text-slate-600 mb-0.5">UI Type</label>
+          <select id="wiz-card-ui" onchange="onWizardUIChange(this.value)" class="w-full p-1 border rounded focus:outline-none focus:border-accentYellow">
+            <option value="buttons">Buttons (Single Choice)</option>
+            <option value="slider">Slider (Numeric Range)</option>
+            <option value="radio">Radio Buttons</option>
+            <option value="checkboxes">Checkboxes (Multiple Choice)</option>
+            <option value="chart">SVG Bar Chart</option>
+          </select>
+        </div>
+
+        <!-- Conditional fields -->
+        <div id="wiz-options-container" class="text-xs">
+          <label class="block font-semibold text-slate-600 mb-0.5">Button/Selection Choices (comma-separated)</label>
+          <input type="text" id="wiz-card-options" value="Approve, Reject, Request revisions" class="w-full p-1 border rounded focus:outline-none focus:border-accentYellow">
+        </div>
+
+        <div id="wiz-slider-container" class="grid grid-cols-3 gap-2 text-xs hidden">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-0.5">Min</label>
+            <input type="number" id="wiz-slider-min" value="0" class="w-full p-1 border rounded">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-0.5">Max</label>
+            <input type="number" id="wiz-slider-max" value="100" class="w-full p-1 border rounded">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-0.5">Default</label>
+            <input type="number" id="wiz-slider-def" value="50" class="w-full p-1 border rounded">
+          </div>
+        </div>
+
+        <div id="wiz-chart-container" class="grid grid-cols-2 gap-2 text-xs hidden">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-0.5">Values (comma-separated)</label>
+            <input type="text" id="wiz-chart-vals" value="70, 90, 55" class="w-full p-1 border rounded">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-0.5">Labels (comma-separated)</label>
+            <input type="text" id="wiz-chart-lbls" value="Accuracy, Speed, Safety" class="w-full p-1 border rounded">
+          </div>
+        </div>
+
+        <button onclick="generateWizardCard()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs transition-colors shrink-0 mt-1">Generate Card Code</button>
+      </div>
+
+      <!-- Code Output -->
+      <div class="bg-slate-900 p-3 rounded-lg flex flex-col font-mono text-[10px] shadow-sm justify-between min-h-0">
+        <div class="flex-1 flex flex-col min-h-0">
+          <div class="flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-wider mb-2 border-b border-slate-800 pb-1 shrink-0">
+            <span>Generated Card Markup</span>
+            <button onclick="copyCode('wiz-card-output')" class="text-emerald-400 font-bold hover:underline">Copy Code</button>
+          </div>
+          <textarea id="wiz-card-output" readonly class="flex-1 w-full bg-slate-950 text-slate-200 p-2 border border-slate-850 rounded resize-none outline-none leading-tight font-mono text-[10px] min-h-0"></textarea>
+        </div>
+        <div class="border-t border-slate-800 pt-2 mt-2 text-[9.5px] text-slate-400 shrink-0">
+          Save this content to file: <code id="wiz-card-path" class="text-accentYellow">_tv/screens/demo/002-checkpoint.md</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 4: Pipeline Screen Creator Wizard (New!) -->
+  <div id="content-wizard-screen" class="flex-1 flex flex-col gap-3 min-h-0 hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1 min-h-0 overflow-auto">
+      <!-- Input Panel -->
+      <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col gap-3 overflow-y-auto">
+        <h2 class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pipeline Screen Setup Wizard</h2>
+        
+        <div class="text-xs">
+          <label class="block font-semibold text-slate-600 mb-0.5">Pipeline Screen Tabs (comma-separated)</label>
+          <input type="text" id="wiz-screen-stages" value="01-research, 02-spec, 03-review" class="w-full p-1 border rounded focus:outline-none focus:border-accentYellow">
+          <span class="text-[10px] text-slate-400 block mt-0.5">Each stage folder forms a tab in the header rail.</span>
+        </div>
+
+        <div class="text-xs">
+          <label class="block font-semibold text-slate-600 mb-0.5">Layout Pattern</label>
+          <select id="wiz-screen-pattern" class="w-full p-1 border rounded focus:outline-none focus:border-accentYellow">
+            <option value="2card">2-Card Side-by-Side (Recommended: Data Card + Decision Card)</option>
+            <option value="single">Single Card Layout (Standard Centered)</option>
+          </select>
+          <span class="text-[10px] text-slate-400 block mt-0.5">Side-by-side places information alongside active user prompt buttons.</span>
+        </div>
+
+        <button onclick="generateWizardScreens()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs transition-colors mt-2">Calculate Screen Assets</button>
+      </div>
+
+      <!-- Action output instructions -->
+      <div class="bg-slate-900 p-3 rounded-lg flex flex-col font-mono text-[10px] shadow-sm justify-between min-h-0">
+        <div class="flex-1 flex flex-col min-h-0">
+          <div class="flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-wider mb-2 border-b border-slate-800 pb-1 shrink-0">
+            <span>Layout Config (_layout.json)</span>
+            <button onclick="copyCode('wiz-screen-output')" class="text-emerald-400 font-bold hover:underline">Copy Code</button>
+          </div>
+          <textarea id="wiz-screen-output" readonly class="flex-1 w-full bg-slate-950 text-slate-200 p-2 border border-slate-850 rounded resize-none outline-none leading-tight font-mono text-[10px] min-h-0"></textarea>
+        </div>
+        <div class="border-t border-slate-800 pt-2 mt-2 text-[9.5px] text-slate-400 shrink-0 leading-tight">
+          <p class="text-emerald-400 font-bold">Steps to configure:</p>
+          <ol class="list-decimal pl-3 text-slate-300 mt-1 space-y-0.5">
+            <li>Run command: <code class="bg-slate-950 text-accentYellow px-1 py-0.5 rounded font-mono text-[9px]">python3 scripts/setup_screens.py</code></li>
+            <li>Input stage names: <code id="wiz-screen-cmd" class="text-accentYellow">01-research, 02-spec, 03-review</code></li>
+            <li>Paste this generated coordinate configuration into each stage's <code class="text-slate-200">_layout.json</code> file.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 5: Cookbook -->
+  <div id="content-cookbook" class="flex-1 flex flex-col gap-3 min-h-0 hidden overflow-y-auto pr-1">
+    <div class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col gap-3">
+      <div>
+        <div class="flex justify-between items-center mb-0.5">
+          <span class="text-xs font-bold text-slate-700">1. Choice Buttons</span>
+          <button onclick="copyCode('code-btn')" class="text-[10px] text-accentYellow font-bold hover:underline">Copy Code</button>
+        </div>
+        <textarea id="code-btn" readonly class="w-full h-16 p-1.5 bg-slate-900 text-slate-200 font-mono text-[10px] rounded border border-slate-800 resize-none outline-none"><div class="flex gap-2">
+  <button onclick="respond('approve')" style="padding: 8px; border-radius: 4px; background: #6f9e6a; color: white;">Approve</button>
+  <button onclick="respond('reject')" style="padding: 8px; border-radius: 4px; background: #c2683f; color: white;">Reject</button>
+</div></textarea>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-0.5">
+          <span class="text-xs font-bold text-slate-700">2. Range Slider</span>
+          <button onclick="copyCode('code-slider')" class="text-[10px] text-accentYellow font-bold hover:underline">Copy Code</button>
+        </div>
+        <textarea id="code-slider" readonly class="w-full h-16 p-1.5 bg-slate-900 text-slate-200 font-mono text-[10px] rounded border border-slate-800 resize-none outline-none"><div>
+  <input type="range" id="sld" min="0" max="100" value="50" oninput="document.getElementById('lbl').textContent=this.value">
+  <span id="lbl">50</span>%
+  <button onclick="respond(parseInt(document.getElementById('sld').value))">Submit</button>
+</div></textarea>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-0.5">
+          <span class="text-xs font-bold text-slate-700">3. Radio Buttons</span>
+          <button onclick="copyCode('code-radio')" class="text-[10px] text-accentYellow font-bold hover:underline">Copy Code</button>
+        </div>
+        <textarea id="code-radio" readonly class="w-full h-20 p-1.5 bg-slate-900 text-slate-200 font-mono text-[10px] rounded border border-slate-800 resize-none outline-none"><div style="font-family: sans-serif; font-size: 13px;">
+  <label><input type="radio" name="prio" value="low"> Low</label>
+  <label><input type="radio" name="prio" value="med" checked> Medium</label>
+  <label><input type="radio" name="prio" value="high"> High</label>
+  <button onclick="respond(document.querySelector('input[name=\'prio\']:checked').value)">Submit</button>
+</div></textarea>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-0.5">
+          <span class="text-xs font-bold text-slate-700">4. Interactive SVG Bar Chart</span>
+          <button onclick="copyCode('code-svg')" class="text-[10px] text-accentYellow font-bold hover:underline">Copy Code</button>
+        </div>
+        <textarea id="code-svg" readonly class="w-full h-24 p-1.5 bg-slate-900 text-slate-200 font-mono text-[10px] rounded border border-slate-800 resize-none outline-none"><div style="font-family: sans-serif; font-size: 13px;">
+  <svg viewBox="0 0 200 100" style="width: 100%; border-bottom: 1px solid #ccc; background: #fafafa;">
+    <rect x="25" y="30" width="30" height="60" fill="#e0a23c" rx="2" />
+    <text x="40" y="25" font-size="8" text-anchor="middle">75%</text>
+    <text x="40" y="98" font-size="7" text-anchor="middle" fill="#666">Accuracy</text>
+    <rect x="85" y="10" width="30" height="80" fill="#6f9e6a" rx="2" />
+    <text x="100" y="5" font-size="8" text-anchor="middle">95%</text>
+    <text x="100" y="98" font-size="7" text-anchor="middle" fill="#666">Speed</text>
+  </svg>
+  <button onclick="respond('approved')" style="margin-top: 8px;">Approve Metrics</button>
+</div></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 6: Guide -->
+  <div id="content-guide" class="flex-1 flex flex-col gap-3 min-h-0 hidden overflow-y-auto pr-1">
+    <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm text-xs leading-relaxed text-slate-700 space-y-4">
+      <div>
+        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🚀 Quick Start Guide</h3>
+        <p class="mb-2">Get up and running in under 30 seconds:</p>
+        <ol class="list-decimal pl-4 space-y-1">
+          <li>Ensure your CCTV server is active: <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">npm start</code></li>
+          <li>Open <a href="http://localhost:4321" target="_blank" class="text-accentYellow hover:underline">http://localhost:4321</a> in your web browser.</li>
+          <li>Run the screen setup wizard: <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/setup_screens.py</code></li>
+          <li>Watch tabs appear instantly as directory folders are watched!</li>
+        </ol>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">📂 Folder Architecture</h3>
+        <p class="mb-2">Your visual board is completely driven by plain files inside the <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_tv/</code> folder:</p>
+        <ul class="list-disc pl-4 space-y-1">
+          <li><strong>Tabs</strong>: Every subfolder inside <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_tv/screens/</code> forms a tab (e.g. <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">demo/</code>).</li>
+          <li><strong>Cards</strong>: Every <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">.md</code> file in a screen folder renders as a card on that board.</li>
+          <li><strong>Layout</strong>: A <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_layout.json</code> file saves card positioning/sizes. It is owned by your browser drags and won't be clobbered by your agent.</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🧠 Agent & Developer Skills</h3>
+        <p class="mb-2">This workspace ships with two powerful helper skills. These instruct other AI agents (like Claude Code, Codex, and Claude.ai chat) on how to generate layouts and forms:</p>
+        <ul class="list-disc pl-4 space-y-1">
+          <li><strong>Interactive Card Builder</strong>: Instructs the agent on structuring interactive templates. Run command: <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/generate_card.py</code></li>
+          <li><strong>Screen Layout Setup</strong>: Instructs on setting up directories. Run command: <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/setup_screens.py</code></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🎨 Layout Design Patterns</h3>
+        <div class="space-y-3">
+          <div>
+            <h4 class="font-bold text-slate-800">Pattern A: The 2-Card Side-by-Side (Recommended)</h4>
+            <p class="mt-1">Put a data card and an action/decision card on the <strong>same screen</strong>. For example, on the <code class="bg-slate-100 px-1 py-0.5 rounded">02-spec</code> screen, place `001-spec-data.md` at <code class="bg-slate-100 px-1 py-0.5 rounded">x: 24</code>, and `002-action.md` at <code class="bg-slate-100 px-1 py-0.5 rounded">x: 380</code> inside the <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_layout.json</code> coordinate block. The user can view specs on the left and approve on the right without changing tabs.</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-800">Pattern B: Multiple Screens per Stage</h4>
+            <p class="mt-1">Create separate directories for the same stage (e.g., <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">01-research-tables</code> and <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">01-research-charts</code>) to keep complex data summaries organized in tabs.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🤝 How Your AI Agent Interacts</h3>
+        <p class="mb-2">The sequential execution model works as follows:</p>
+        <ul class="list-disc pl-4 space-y-1">
+          <li><strong>Emit</strong>: The agent writes files to <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_tv/screens/<stage>/</code> to show stage output.</li>
+          <li><strong>Checkpoint</strong>: When the agent hits a choice checkpoint, it writes a <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">type: interactive</code> card with <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">status: blocked</code> and stops.</li>
+          <li><strong>Respond</strong>: You click a choice on the board, which executes <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">respond(value)</code> and writes to <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_tv/responses/<stage>/<id>.md</code>.</li>
+          <li><strong>Resume</strong>: You tell the agent in chat to continue. It reads the response file and resumes executing with your input.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script logic -->
+  <script>
+    // State management
+    const state = {
+      selection: "None",
+      sliderValue: 50,
+      priority: "medium"
+    };
+
+    function updatePreview() {
+      document.getElementById('payload-preview').textContent = JSON.stringify(state, null, 2);
+    }
+
+    function updateSelection(val) {
+      state.selection = val;
+      updatePreview();
+    }
+
+    function updateSlider(val) {
+      state.sliderValue = parseInt(val);
+      document.getElementById('slider-txt').textContent = val + "%";
+      updatePreview();
+    }
+
+    function updateRadio(val) {
+      state.priority = val;
+      updatePreview();
+    }
+
+    function sendPayload() {
+      if (typeof window.respond === 'function') {
+        window.respond(state);
+      } else {
+        alert("The board response bridge is not loaded inside this preview window, but the payload is ready!");
+      }
+    }
+
+    // Chart updating
+    function updateChartBar(bar, val) {
+      const rect = document.getElementById('bar-' + bar);
+      const text = document.getElementById('lbl-' + bar);
+      const num = parseInt(val);
+      
+      const h = Math.round(num * 0.8);
+      const y = 90 - h;
+      
+      rect.setAttribute('height', h);
+      rect.setAttribute('y', y);
+      text.setAttribute('y', y - 6);
+      text.textContent = num + "%";
+    }
+
+    // Tab switching
+    function switchTab(tabId) {
+      ['playground', 'charts', 'wizard-card', 'wizard-screen', 'cookbook', 'guide'].forEach(t => {
+        document.getElementById('content-' + t).classList.add('hidden');
+        document.getElementById('tab-' + t).classList.remove('border-accentYellow', 'text-slate-900');
+        document.getElementById('tab-' + t).classList.add('border-transparent', 'text-slate-500');
+      });
+      document.getElementById('content-' + tabId).classList.remove('hidden');
+      document.getElementById('tab-' + tabId).classList.add('border-accentYellow', 'text-slate-900');
+      document.getElementById('tab-' + tabId).classList.remove('border-transparent', 'text-slate-500');
+      
+      // Auto generate wizards when switching to make sure output is populated
+      if (tabId === 'wizard-card') generateWizardCard();
+      if (tabId === 'wizard-screen') generateWizardScreens();
+    }
+
+    // Copy to clipboard helper
+    function copyCode(id) {
+      const copyText = document.getElementById(id);
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value);
+      alert("Code copied to clipboard!");
+    }
+
+    // Card Wizard visibility toggle
+    function onWizardUIChange(uiVal) {
+      document.getElementById('wiz-options-container').classList.add('hidden');
+      document.getElementById('wiz-slider-container').classList.add('hidden');
+      document.getElementById('wiz-chart-container').classList.add('hidden');
+      
+      if (uiVal === 'buttons' || uiVal === 'radio' || uiVal === 'checkboxes') {
+        document.getElementById('wiz-options-container').classList.remove('hidden');
+      } else if (uiVal === 'slider') {
+        document.getElementById('wiz-slider-container').classList.remove('hidden');
+      } else if (uiVal === 'chart') {
+        document.getElementById('wiz-chart-container').classList.remove('hidden');
+      }
+      generateWizardCard();
+    }
+
+    // Generate Card Wizard Code
+    function generateWizardCard() {
+      const screen = document.getElementById('wiz-card-screen').value.trim();
+      const id = document.getElementById('wiz-card-id').value.trim();
+      const title = document.getElementById('wiz-card-title').value.trim();
+      const prompt = document.getElementById('wiz-card-prompt').value.trim();
+      const ui = document.getElementById('wiz-card-ui').value;
+      const opts = document.getElementById('wiz-card-options').value.split(',').map(o => o.trim()).filter(Boolean);
+
+      let html = '';
+      if (ui === 'buttons') {
+        const btnHtml = opts.map(o => {
+          const slug = o.toLowerCase().replace(/ /g, '-');
+          return `  <button onclick="respond('${slug}')" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: white; cursor: pointer;">${o}</button>`;
+        }).join('\n');
+        html = `<div style="font-family: sans-serif; padding: 10px; display: flex; flex-direction: column; gap: 8px;">\n  <p>${prompt}</p>\n${btnHtml}\n</div>`;
+      } else if (ui === 'slider') {
+        const min = document.getElementById('wiz-slider-min').value;
+        const max = document.getElementById('wiz-slider-max').value;
+        const def = document.getElementById('wiz-slider-def').value;
+        html = `<div style="font-family: sans-serif; padding: 10px; display: flex; flex-direction: column; gap: 12px; font-size: 13px;">\n  <p>${prompt}</p>\n  <div>\n    <label>${prompt} (<span id="lbl">${def}</span>):</label>\n    <input type="range" id="sld" min="${min}" max="${max}" value="${def}" style="width:100%;" oninput="document.getElementById('lbl').textContent=this.value">\n  </div>\n  <button onclick="respond(parseInt(document.getElementById('sld').value))" style="padding:6px; background:#e0a23c; border:none; border-radius:4px; cursor:pointer;">Submit</button>\n</div>`;
+      } else if (ui === 'radio') {
+        const radHtml = opts.map(o => {
+          const slug = o.toLowerCase().replace(/ /g, '-');
+          return `  <label style="display:block; margin: 4px 0;"><input type="radio" name="wiz-rad" value="${slug}"> ${o}</label>`;
+        }).join('\n');
+        html = `<div style="font-family: sans-serif; padding: 10px; font-size: 13px;">\n  <p>${prompt}</p>\n${radHtml}\n  <button onclick="respond(document.querySelector('input[name=\\'wiz-rad\\']:checked').value)" style="margin-top:8px; padding:6px; background:#e0a23c; border:none; border-radius:4px; cursor:pointer;">Submit</button>\n</div>`;
+      } else if (ui === 'checkboxes') {
+        const cbHtml = opts.map(o => {
+          const slug = o.toLowerCase().replace(/ /g, '-');
+          return `  <label style="display:block; margin: 4px 0;"><input type="checkbox" value="${slug}"> ${o}</label>`;
+        }).join('\n');
+        html = `<div style="font-family: sans-serif; padding: 10px; font-size: 13px;">\n  <p>${prompt}</p>\n${cbHtml}\n  <button onclick="submitCheckboxes()" style="margin-top:8px; padding:6px; background:#e0a23c; border:none; border-radius:4px; cursor:pointer;">Submit</button>\n</div>\n<script>\nfunction submitCheckboxes() {\n  const selected = [];\n  document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => selected.push(cb.value));\n  respond(selected);\n}\n<\/script>`;
+      } else if (ui === 'chart') {
+        const vals = document.getElementById('wiz-chart-vals').value.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+        const lbls = document.getElementById('wiz-chart-lbls').value.split(',').map(l => l.trim()).filter(Boolean);
+        
+        let svgBars = '';
+        const width = 30, gap = 20, start_x = 25;
+        vals.forEach((v, idx) => {
+          const l = lbls[idx] || ('Metric ' + (idx + 1));
+          const x = start_x + idx * (width + gap);
+          const h = Math.round(v * 0.8);
+          const y = 90 - h;
+          svgBars += `    <rect x="${x}" y="${y}" width="${width}" height="${h}" fill="#e0a23c" rx="2" />\n`;
+          svgBars += `    <text x="${x + width/2}" y="${y - 4}" font-size="8" font-weight="bold" text-anchor="middle">${v}%</text>\n`;
+          svgBars += `    <text x="${x + width/2}" y="98" font-size="7" text-anchor="middle" fill="#666">${l}</text>\n`;
+        });
+        
+        html = `<div style="font-family: sans-serif; padding: 10px; font-size: 13px;">\n  <p>${prompt}</p>\n  <svg viewBox="0 0 200 100" style="width:100%; border-bottom:1px solid #ccc; background:#fafafa; margin: 8px 0;">\n${svgBars}  </svg>\n  <button onclick="respond('approve')" style="padding:6px; background:#6f9e6a; border:none; border-radius:4px; color:white; cursor:pointer; width:100%;">Approve metrics</button>\n</div>`;
+      }
+
+      const out = `---\nid: ${id}\ntitle: ${title}\ntype: interactive\nstatus: blocked\n---\n${html}`;
+      document.getElementById('wiz-card-output').value = out;
+      document.getElementById('wiz-card-path').textContent = `_tv/screens/${screen}/${id}.md`;
+    }
+
+    // Generate Screen Wizard Setup
+    function generateWizardScreens() {
+      const stagesStr = document.getElementById('wiz-screen-stages').value;
+      const stages = stagesStr.split(',').map(s => s.trim()).filter(Boolean);
+      const pattern = document.getElementById('wiz-screen-pattern').value;
+
+      document.getElementById('wiz-screen-cmd').textContent = stages.join(', ');
+
+      let layoutObj = {};
+      if (pattern === '2card') {
+        layoutObj = {
+          "001-welcome": { "x": 24, "y": 24, "w": 340, "h": 260, "z": 0, "pinned": true },
+          "002-checkpoint": { "x": 380, "y": 24, "w": 332, "h": 260, "z": 1, "pinned": false }
+        };
+      } else {
+        layoutObj = {
+          "001-welcome": { "x": 24, "y": 24, "w": 342, "h": 232, "z": 0, "pinned": false }
+        };
+      }
+
+      document.getElementById('wiz-screen-output').value = JSON.stringify(layoutObj, null, 2);
+    }
+  </script>
+</body>
+</html>

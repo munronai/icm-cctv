@@ -39,6 +39,25 @@ When you start the server and open the board in your browser, select the **`00-g
 - **Code Templates**: Access copy-pasteable HTML snippets for range sliders, radio buttons, choices, or charts.
 - **Full User Guide**: Read the entire [USER-GUIDE.md](file:///Users/munron/icm-television/USER-GUIDE.md) text directly on your board.
 
+## 🏎️ GTA CCTV Car Chase Simulation
+
+CCTV includes a top-down police chase simulation in a 6-block city grid to demonstrate how real-time file updates can act as directional inputs.
+
+To view and control the simulation:
+1. Start the server and navigate to the **`gta-chase`** tab in the header.
+2. You will see three cards:
+   - **CCTV: City Car Chase**: The canvas animation showing the red car fleeing the blue police car.
+   - **Directional Control Panel**: Buttons to steer Left, Right, or Straight.
+   - **Active Telemetry & Command**: A text-based telemetry card showing the raw steering value written to the file system.
+3. **Control Methods**:
+   - **Clicking**: Click the steering buttons on the controller card.
+   - **Keyboard**: Click the controller card to focus it, then steer using **Arrow Keys** (←/→/↑) or **WASD** keys.
+   - **CLI Terminal**: Steer directly from your terminal by running:
+     ```bash
+     python3 scripts/steer.py <left|right|straight>
+     ```
+     *Watch the car immediately make the turn at the next intersection as the file changes propagate over WebSockets!*
+
 ## Ownership (why nothing gets clobbered)
 
 | File | Owner | Holds |

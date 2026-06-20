@@ -104,6 +104,16 @@ Create two screen folders:
 
 ---
 
+### Pattern 3: Real-Time Simulation Control (GTA Chase Demo)
+You can design active playgrounds where cards interact with each other in real-time. On the `gta-chase` screen:
+- **`001-chase.md`** (`type: interactive`): The canvas game drawing the vehicles and running the simulation loop.
+- **`002-control.md`** (`type: interactive`): Buttons that send input signals (left, right, straight).
+- **`003-command.md`** (`type: card`): Serves as the steering file. Both button clicks and the terminal command `python3 scripts/steer.py <left|right|straight>` rewrite this file, triggering WebSocket pushes that instruct the getaway car.
+
+By positioning these in two parallel columns (`_layout.json`), you get a dashboard that acts as a real-time command console.
+
+---
+
 ## 🤝 How Your AI Agent Interacts
 
 When your agent runs a stage:

@@ -63,6 +63,7 @@ async function readScreen(screenName) {
       id, file: `_tv/screens/${screenName}/${file}`,
       title: data.title || id, type: data.type || "card",
       stage: data.stage ?? null, status: data.status ?? null, source: data.source ?? null,
+      updated: data.updated ?? null,
       pinned: lay.pinned ?? data.pinned ?? false,
       x: lay.x ?? 24 + col * 360, y: lay.y ?? 24 + row * 260,
       w: lay.w ?? 332, h: lay.h ?? 232, z: lay.z ?? i,

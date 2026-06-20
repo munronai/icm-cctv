@@ -59,9 +59,69 @@ function render() {
   
   screensEl.querySelectorAll(".screen-tab").forEach((b) => (b.onclick = () => { active = b.dataset.screen; render(); }));
 
-  boardEl.querySelectorAll(".card").forEach((n) => n.remove());
   const arts = (state.screens[active] || []).slice().sort((a, b) => a.z - b.z);
-  for (const a of arts) boardEl.appendChild(cardEl(a));
+  
+  // Find current card elements on board
+  const existingCards = {};
+  boardEl.querySelectorAll(".card").forEach((el) => {
+    existingCards[el.dataset.id] = el;
+  });
+  
+  const activeIds = new Set(arts.map(a => a.id));
+  
+  // Remove cards that are no longer on this screen
+  for (const id in existingCards) {
+    if (!activeIds.has(id)) {
+      existingCards[id].remove();
+      delete existingCards[id];
+    }
+  }
+
+  // Update or append cards
+  for (const a of arts) {
+    const existing = existingCards[a.id];
+    
+    if (existing) {
+      if (edit && edit.id === a.id) continue; // Skip active edits
+      
+      const bodyChanged = existing.dataset.body !== a.body;
+      const titleChanged = existing.dataset.title !== a.title;
+      const statusChanged = existing.dataset.status !== a.status;
+      const pinChanged = existing.dataset.pinned !== String(a.pinned);
+      
+      // If content did not change, just update layout styles
+      if (!bodyChanged && !titleChanged && !statusChanged && !pinChanged) {
+        existing.style.left = a.x + "px";
+        existing.style.top = a.y + "px";
+        existing.style.width = a.w + "px";
+        existing.style.height = a.h + "px";
+        existing.style.zIndex = a.z;
+        continue;
+      }
+      
+      // Recreate and replace if content changed
+      const newEl = cardEl(a);
+      existing.replaceWith(newEl);
+      existingCards[a.id] = newEl;
+    } else {
+      const newEl = cardEl(a);
+      boardEl.appendChild(newEl);
+      existingCards[a.id] = newEl;
+    }
+  }
+
+  // Store metadata on each card element for comparison next time
+  boardEl.querySelectorAll(".card").forEach((el) => {
+    const id = el.dataset.id;
+    const a = arts.find(x => x.id === id);
+    if (a) {
+      el.dataset.body = a.body;
+      el.dataset.title = a.title;
+      el.dataset.status = a.status;
+      el.dataset.pinned = String(a.pinned);
+    }
+  });
+
   const n = arts.length;
   statusEl.textContent = `screen "${active || "—"}" · ${n} artifact${n === 1 ? "" : "s"} · click a card to edit · "edit output" opens the real file`;
 }
@@ -211,6 +271,22 @@ window.addEventListener("message", async (e) => {
     if (f && f.contentWindow === e.source) { cardId = el.dataset.id; iframe = f; }
   });
   if (!cardId) return; // message from something that isn't our card — ignore
+
+  // Custom Hook: If on gta-chase screen and responding from the steering column,
+  // write the choice directly to the 003-command card file instead of responses!
+  if (active === "gta-chase" && cardId === "002-control") {
+    try {
+      await fetch("/api/content", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ screen: active, id: "003-command", body: d.value })
+      });
+      statusEl.textContent = `steering command written to 003-command.md → ${d.value}`;
+      iframe && iframe.contentWindow.postMessage({ __icm: "ack", ok: true, id: cardId, value: d.value }, "*");
+    } catch (err) {}
+    return;
+  }
+
   try {
     const r = await fetch("/api/respond", { method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ screen: active, id: cardId, value: d.value }) });
@@ -257,8 +333,20 @@ function connect() {
     const msg = JSON.parse(ev.data);
     if (msg.type !== "state") return;
     state = { screens: msg.screens };
-    // don't let an incoming push wipe an in-progress inline edit
     render();
+    
+    // Broadcast the updated state to all running interactive iframes on the current screen
+    const activeArts = state.screens[active] || [];
+    boardEl.querySelectorAll(".card iframe").forEach((iframe) => {
+      try {
+        iframe.contentWindow.postMessage({ 
+          __icm: "state", 
+          screens: state.screens, 
+          active: active, 
+          artifacts: activeArts 
+        }, "*");
+      } catch (e) {}
+    });
   };
 }
 connect();

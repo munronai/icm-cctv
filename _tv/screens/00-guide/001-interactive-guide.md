@@ -372,6 +372,10 @@ status: running
             <h4 class="font-bold text-slate-800">Pattern B: Multiple Screens per Stage</h4>
             <p class="mt-1">Create separate directories for the same stage (e.g., <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">01-research-tables</code> and <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">01-research-charts</code>) to keep complex data summaries organized in tabs.</p>
           </div>
+          <div>
+            <h4 class="font-bold text-slate-800">Pattern C: Real-Time Simulation Control (GTA Chase)</h4>
+            <p class="mt-1">You can design active playgrounds where cards interact with each other in real-time. For example, on the <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">gta-chase</code> screen, an interactive canvas simulation is driven by command signals. Both on-screen button controls and terminal telemetry scripts (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/steer.py</code>) rewrite the active telemetry file, sending WebSocket updates to guide vehicles live on the map.</p>
+          </div>
         </div>
       </div>
 

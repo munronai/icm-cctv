@@ -128,4 +128,4 @@ To assist non-technical users and agents in setting up the board, the repository
    - Run `python3 scripts/setup_screens.py`
    - Automatically provisions new pipeline screen folders under `_tv/screens/` and populates them with welcome, checkpoint, and output summary placeholders, pre-aligned in a clean layout.
 
-MIT.
+Apache 2.0.

@@ -237,6 +237,7 @@ function renderOverlay() {
 function dragify(card, handle, a, mode) {
   if (!handle) return;
   handle.addEventListener("pointerdown", (e) => {
+    if (a.pinned) return;
     e.preventDefault(); handle.setPointerCapture?.(e.pointerId);
     card.classList.add("dragging");
     const sx = e.clientX, sy = e.clientY, ox = a.x, oy = a.y, ow = a.w, oh = a.h;

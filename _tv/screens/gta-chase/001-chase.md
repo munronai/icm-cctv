@@ -62,7 +62,7 @@ status: running
         this.y = Y_POS[iy];
         this.color = color;
         this.isPolice = isPolice;
-        this.vx = SPEED;
+        this.vx = isPolice ? -SPEED : SPEED; // Police starts heading West, player starts East
         this.vy = 0;
         this.angle = 0;
         this.sirenTimer = 0;
@@ -175,38 +175,37 @@ status: running
       }
 
       policeDecision(ix, iy) {
-        // Simple tracking: reduce Manhattan distance to player's current intersection
-        const dx = player.ix - ix;
-        const dy = player.iy - iy;
-        
-        let possibleDirs = [];
-        
-        if (dx > 0) possibleDirs.push({ vx: SPEED, vy: 0 });
-        if (dx < 0) possibleDirs.push({ vx: -SPEED, vy: 0 });
-        if (dy > 0) possibleDirs.push({ vx: 0, vy: SPEED });
-        if (dy < 0) possibleDirs.push({ vx: 0, vy: -SPEED });
-
-        // Add remaining valid directions as fallback
-        const allDirs = [
+        const dirs = [
           { vx: SPEED, vy: 0 },
           { vx: -SPEED, vy: 0 },
           { vx: 0, vy: SPEED },
           { vx: 0, vy: -SPEED }
         ];
-        possibleDirs = possibleDirs.concat(allDirs);
 
-        // Filter valid directions within map bounds and prevent police from turning directly back
-        for (const dir of possibleDirs) {
+        let bestDir = null;
+        let minDistance = Infinity;
+
+        for (const dir of dirs) {
+          // Prevent turning directly back (180 deg) at an intersection
           if (dir.vx === -this.vx && dir.vy === -this.vy) continue;
 
           const nextIx = ix + Math.sign(dir.vx);
           const nextIy = iy + Math.sign(dir.vy);
 
+          // Check map grid boundaries
           if (nextIx >= 0 && nextIx < X_POS.length && nextIy >= 0 && nextIy < Y_POS.length) {
-            this.vx = dir.vx;
-            this.vy = dir.vy;
-            return;
+            // Find Manhattan distance to the player's intersection
+            const dist = Math.abs(player.ix - nextIx) + Math.abs(player.iy - nextIy);
+            if (dist < minDistance) {
+              minDistance = dist;
+              bestDir = dir;
+            }
           }
+        }
+
+        if (bestDir) {
+          this.vx = bestDir.vx;
+          this.vy = bestDir.vy;
         }
       }
 

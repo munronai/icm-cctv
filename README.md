@@ -56,6 +56,86 @@ To show what is possible if your pipeline requires it, CCTV includes several opt
 
 ---
 
+## 🔄 The ICM to CCTV Data Loop
+
+> [!IMPORTANT]
+> **CCTV is an Optional Visual Layer**
+> The interpreted context methodology (ICM) pipeline runs as normal, using standard stage folders (like `stages/01-research/output/`) as the source of truth for all pipeline files. **CCTV is simply a visual addition.** It watches files and mirrors them for display, or writes interactive response files for the agent to resume. The pipeline does not require CCTV to run.
+
+The connection between your standard ICM stages and CCTV is driven entirely by files:
+1. **AI Output & Visual Mirroring**: An ICM stage runs and writes its primary output to its standard stage folder (e.g. `stages/01-research/output/sources.md`). It *also* emits a corresponding `.md` card under `_tv/screens/01-research/001-findings.md` pointing to that source file, allowing the browser to render it.
+2. **User Direct-Edits (Case B)**: If the user edits the findings card on the CCTV board, the edit is saved directly back to the standard ICM file (`stages/01-research/output/sources.md`) because the card frontmatter links to it. The next stage reads this updated file.
+3. **User Interactive Responses (Case C)**: For decisions, CCTV writes a response file to `_tv/responses/02-spec/002-checkpoint.md`. The next stage reads this response file to resume execution.
+
+Here are the directory structures showing where changes occur for each case, showing the standard ICM folders alongside the optional CCTV visual folder:
+
+### 📁 Case A: AI Stage Outputs a Card (Stage Output)
+When the AI agent runs Stage 1 (Research), it writes its standard pipeline output file (`sources.md`). To display this on the CCTV board, it *also* writes a card file under `_tv/screens/01-research/` linking to the source.
+
+```
+workspace/
+├── stages/                         <-- Standard ICM Pipeline Folder
+│   └── 01-research/
+│       └── output/
+│           └── sources.md          <-- [WRITTEN BY AI] Standard stage output file (source of truth)
+└── _tv/                            <-- Optional Visual CCTV Folder
+    └── screens/
+        └── 01-research/
+            ├── 001-findings.md     <-- [WRITTEN BY AI] CCTV card file (links to sources.md)
+            └── _layout.json        <-- Position layout coordinates for the card
+```
+
+---
+
+### 📁 Case B: User Direct-Edits Card Text
+If the user wants to revise findings before starting the next stage, they click the card body on the board and edit the text. CCTV writes these changes directly back to the standard ICM file (`sources.md`) in the stages folder.
+
+```
+workspace/
+├── stages/                         <-- Standard ICM Pipeline Folder
+│   └── 01-research/
+│       └── output/
+│           └── sources.md          <-- [UPDATED BY BROWSER] Standard ICM output file edited by user
+└── _tv/                            <-- Optional Visual CCTV Folder
+    └── screens/
+        └── 01-research/
+            └── 001-findings.md     <-- CCTV card file (mirrors updated sources.md)
+```
+
+---
+
+### 📁 Case C: User Interactive Response (Checkpoint)
+When Stage 2 starts, the AI reads the findings from `sources.md`, writes a checkpoint card (`002-checkpoint.md`), and pauses. When the user clicks a button (e.g. "Approve"), the browser writes a response file to `_tv/responses/`. Once approved, Stage 2 resumes, consumes the response, and writes the standard ICM spec output.
+
+```
+workspace/
+├── stages/                         <-- Standard ICM Pipeline Folder
+│   └── 02-spec/
+│       └── output/
+│           └── spec.md             <-- [WRITTEN BY AI ON RESUME] Standard stage output file
+└── _tv/                            <-- Optional Visual CCTV Folder
+    ├── screens/
+    │   └── 02-spec/
+    │       ├── 001-spec.md         <-- CCTV card file (links to spec.md)
+    │       └── 002-checkpoint.md   <-- CCTV checkpoint card with interactive buttons
+    └── responses/
+        └── 02-spec/
+            └── 002-checkpoint.md   <-- [WRITTEN BY BROWSER] User response payload (e.g., "approve")
+```
+
+---
+
+### 🔄 The Step-by-Step Flow:
+1. **Standard Run**: The agent runs a stage and writes outputs to `stages/<stage>/output/` as normal.
+2. **Emit Mirror**: The agent writes cards to `_tv/screens/<stage>/` (linking to output files) to display them.
+3. **Block**: For human decisions, the agent writes a card with `type: interactive` and `status: blocked` to CCTV, and finishes its turn.
+4. **Edit/Respond**: 
+   - Either the user clicks and direct-edits a card (Case B), which updates the file in `stages/<stage>/output/`.
+   - Or the user clicks an interactive control button, which writes a file to `_tv/responses/<stage>/<id>.md` (Case C).
+5. **Resume**: The user prompts the agent to continue. The agent reads the updated output or the response file, processes it, and runs the next stage, emitting the next screen's cards.
+
+---
+
 ## Ownership (why nothing gets clobbered)
 
 | File | Owner | Holds |

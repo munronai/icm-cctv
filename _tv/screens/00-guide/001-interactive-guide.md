@@ -40,6 +40,7 @@ status: running
     <button onclick="switchTab('wizard-screen')" id="tab-wizard-screen" class="px-2.5 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 -mb-[2px] transition-all font-bold text-emerald-600">4. Screen Wizard</button>
     <button onclick="switchTab('cookbook')" id="tab-cookbook" class="px-2.5 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 -mb-[2px] transition-all">5. Code Templates</button>
     <button onclick="switchTab('guide')" id="tab-guide" class="px-2.5 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 -mb-[2px] transition-all">6. Full User Guide</button>
+    <button onclick="switchTab('simulator')" id="tab-simulator" class="px-2.5 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 -mb-[2px] transition-all font-bold text-indigo-600">7. Pipeline Simulator</button>
   </div>
 
   <!-- Tab 1: Playground -->
@@ -357,25 +358,209 @@ status: running
       </div>
 
       <div>
-        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🚀 Advanced Features & Examples (Optional)</h3>
-        <p class="mb-2">CCTV includes optional tools and examples to show what is possible:</p>
-        <ul class="list-disc pl-4 space-y-1.5">
-          <li><strong>🏎️ GTA Chase Simulation (<code class="bg-slate-100 px-1 py-0.5 rounded">gta-chase</code>)</strong>: A canvas-based car chase demonstrating real-time telemetry inputs by writing directions to a file.</li>
-          <li><strong>☁️ Cloud-Native Previews</strong>: Use <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">CLAUDE-CCTV-INSTRUCTIONS.md</code> to let Claude/Gemini self-generate and preview board layouts inside their chat interfaces.</li>
-          <li><strong>🛠️ CLI Scripts</strong>: Optional scripts to setup screens (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">setup_screens.py</code>) or build cards (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">generate_card.py</code>).</li>
+        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🧠 Custom Agent Skills & Wizards</h3>
+        <p class="mb-2">CCTV provides both web-based wizards (see the <strong>Card UI Wizard</strong> and <strong>Screen Wizard</strong> tabs above) and optional terminal helper scripts:</p>
+        <ul class="list-disc pl-4 space-y-1">
+          <li><strong>Card UI & Screen Wizards</strong>: Adjust layouts and build basic HTML controls directly in your browser. Use these if you don't want to run Python scripts or want to understand how it works.</li>
+          <li><strong>Interactive Card Builder (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">scripts/generate_card.py</code>)</strong>: CLI tool to bootstrap templates.</li>
+          <li><strong>Screen Layout Setup (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">scripts/setup_screens.py</code>)</strong>: CLI tool to setup coordinates.</li>
         </ul>
       </div>
 
       <div>
-        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🤝 How Your AI Agent Interacts</h3>
-        <p class="mb-2">The sequential execution model works as follows:</p>
-        <ol class="list-decimal pl-4 space-y-1">
-          <li><strong>Emit</strong>: The agent writes files to <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_tv/screens/<stage>/</code> to show output.</li>
-          <li><strong>Checkpoint</strong>: For decisions, the agent writes an interactive card with <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">status: blocked</code> and stops.</li>
-          <li><strong>Respond</strong>: You click a button, which calls <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">respond(value)</code> and writes to the response folder.</li>
-          <li><strong>Resume</strong>: You tell the agent in chat to continue. It reads the response file and resumes.</li>
-        </ol>
+        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🔄 The ICM to CCTV Data Loop</h3>
+        <p class="mb-2">An ICM stage outputs a file, and for CCTV, a corresponding card file is written in the relevant screens directory to display it. The next stage reads the previous stage output (which can be edited by the user directly or updated via an interactive response) and creates its own screen card in the same way.</p>
+        <div class="space-y-3 bg-slate-50 p-2.5 rounded border border-slate-150 font-mono text-[10px] text-slate-600">
+          <div>
+            <span class="text-slate-900 font-bold">Case A: AI Writes Card (Stage Output)</span>
+            <pre class="bg-white p-1 rounded border mt-1">_tv/screens/01-research/001-findings.md  &lt;-- [Written by AI]</pre>
+          </div>
+          <div>
+            <span class="text-slate-900 font-bold">Case B: User Direct-Edits Card Text</span>
+            <pre class="bg-white p-1 rounded border mt-1">_tv/screens/01-research/001-findings.md  &lt;-- [Updated by User in browser]</pre>
+          </div>
+          <div>
+            <span class="text-slate-900 font-bold">Case C: User Interactive Response</span>
+            <pre class="bg-white p-1 rounded border mt-1">_tv/responses/02-spec/002-checkpoint.md  &lt;-- [Written by response button]</pre>
+          </div>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Tab 7: Pipeline Simulator (New!) -->
+  <div id="content-simulator" class="flex-1 flex flex-col gap-3 min-h-0 hidden">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 flex-1 min-h-0 overflow-auto">
+      
+      <!-- Left Panel: Mock File Tree -->
+      <div class="md:col-span-2 bg-slate-900 text-slate-350 p-3 rounded-lg border border-slate-800 shadow-sm flex flex-col min-h-0 overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-1.5 mb-2 shrink-0">
+          <h2 class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Mock Workspace Files</h2>
+          <span class="text-[9px] text-slate-500 font-mono">icm-television/</span>
+        </div>
+        
+        <!-- File Tree -->
+        <div class="font-mono text-[11px] leading-relaxed flex-1 space-y-1.5">
+          
+          <div class="flex items-center gap-1.5 text-slate-400">
+            <span>📁</span> <span class="font-semibold text-slate-300">workspace</span>
+          </div>
+          
+          <div class="pl-4">
+            <!-- Standard ICM Stages -->
+            <div class="flex items-center gap-1.5 text-slate-400">
+              <span>📁</span> <span class="text-indigo-300 font-semibold">stages (Standard ICM Folders)</span>
+            </div>
+            
+            <div class="pl-4 border-l border-slate-800 ml-2">
+              <div class="flex items-center gap-1.5 text-slate-400">
+                <span>📁</span> <span>01-research</span>
+              </div>
+              
+              <div class="pl-4 border-l border-slate-800 ml-2">
+                <div class="flex items-center gap-1.5 text-slate-400">
+                  <span>📁</span> <span>output</span>
+                </div>
+                
+                <div class="pl-4 border-l border-slate-800 ml-2">
+                  <div id="sim-file-sources" class="flex justify-between items-center p-1 rounded border border-transparent transition-all">
+                    <span class="flex items-center gap-1.5">📄 <span class="text-slate-300">sources.md</span></span>
+                    <span id="sim-badge-sources" class="text-[9px] px-1 rounded hidden font-semibold"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pl-4 border-l border-slate-800 ml-2">
+              <div class="flex items-center gap-1.5 text-slate-400">
+                <span>📁</span> <span>02-spec</span>
+              </div>
+              
+              <div class="pl-4 border-l border-slate-800 ml-2">
+                <div class="flex items-center gap-1.5 text-slate-400">
+                  <span>📁</span> <span>output</span>
+                </div>
+                
+                <div class="pl-4 border-l border-slate-800 ml-2">
+                  <div id="sim-file-spec-src" class="flex justify-between items-center p-1 rounded border border-transparent transition-all">
+                    <span class="flex items-center gap-1.5">📄 <span class="text-slate-300">spec.md</span></span>
+                    <span id="sim-badge-spec-src" class="text-[9px] px-1 rounded hidden font-semibold"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Optional CCTV Layer -->
+            <div class="flex items-center gap-1.5 text-slate-400 mt-3">
+              <span>📁</span> <span class="text-amber-400 font-semibold">_tv (Optional Visual CCTV Layer)</span>
+            </div>
+            
+            <div class="pl-4 border-l border-slate-800 ml-2">
+              <div class="flex items-center gap-1.5 text-slate-400">
+                <span>📁</span> <span>screens</span>
+              </div>
+              
+              <div class="pl-4 border-l border-slate-800 ml-2">
+                <div class="flex items-center gap-1.5 text-slate-400">
+                  <span>📁</span> <span>01-research</span>
+                </div>
+                
+                <div class="pl-4 border-l border-slate-800 ml-2">
+                  <div id="sim-file-findings" class="flex justify-between items-center p-1 rounded border border-transparent transition-all">
+                    <span class="flex items-center gap-1.5">📄 <span class="text-slate-300">001-findings.md</span></span>
+                    <span id="sim-badge-findings" class="text-[9px] px-1 rounded hidden font-semibold"></span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="pl-4 border-l border-slate-800 ml-2">
+                <div class="flex items-center gap-1.5 text-slate-400">
+                  <span>📁</span> <span>02-spec</span>
+                </div>
+                
+                <div class="pl-4 border-l border-slate-800 ml-2">
+                  <div id="sim-file-spec" class="flex justify-between items-center p-1 rounded border border-transparent transition-all">
+                    <span class="flex items-center gap-1.5">📄 <span class="text-slate-300">001-spec.md</span></span>
+                    <span id="sim-badge-spec" class="text-[9px] px-1 rounded hidden font-semibold"></span>
+                  </div>
+                </div>
+                
+                <div class="pl-4 border-l border-slate-800 ml-2">
+                  <div id="sim-file-checkpoint" class="flex justify-between items-center p-1 rounded border border-transparent transition-all">
+                    <span class="flex items-center gap-1.5">📄 <span class="text-slate-300">002-checkpoint.md</span></span>
+                    <span id="sim-badge-checkpoint" class="text-[9px] px-1 rounded hidden font-semibold"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="pl-4 border-l border-slate-800 ml-2 mt-2">
+              <div class="flex items-center gap-1.5 text-slate-400">
+                <span>📁</span> <span>responses</span>
+              </div>
+              
+              <div class="pl-4 border-l border-slate-800 ml-2">
+                <div class="flex items-center gap-1.5 text-slate-400">
+                  <span>📁</span> <span>02-spec</span>
+                </div>
+                
+                <div class="pl-4 border-l border-slate-800 ml-2">
+                  <div id="sim-file-response" class="flex justify-between items-center p-1 rounded border border-transparent transition-all">
+                    <span class="flex items-center gap-1.5">📄 <span class="text-slate-300">002-checkpoint.md</span></span>
+                    <span id="sim-badge-response" class="text-[9px] px-1 rounded hidden font-semibold"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Panel: Step Controls & Mini CCTV Board -->
+      <div class="md:col-span-3 flex flex-col gap-3 min-h-0">
+        
+        <!-- Step Walkthrough controls -->
+        <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col gap-2 shrink-0">
+          <div class="flex justify-between items-center">
+            <h2 id="sim-step-title" class="text-xs font-bold text-slate-900">Step 1: Stage 1 Begins (AI Writes Output & Mirror Card)</h2>
+            <div class="flex gap-1">
+              <button onclick="changeSimStep(-1)" id="sim-btn-prev" class="px-2 py-0.5 text-[10px] font-semibold border border-slate-200 rounded hover:bg-slate-50 transition-colors disabled:opacity-50" disabled>&lt; Back</button>
+              <button onclick="changeSimStep(1)" id="sim-btn-next" class="px-2 py-0.5 text-[10px] font-semibold bg-accentYellow hover:bg-amber-500 text-slate-900 rounded transition-colors">Next &gt;</button>
+            </div>
+          </div>
+          
+          <p id="sim-step-desc" class="text-[11px] leading-relaxed text-slate-600"></p>
+          
+          <!-- Step Indicators -->
+          <div class="flex justify-between text-[9px] font-bold text-slate-400 border-t border-slate-100 pt-2 mt-1 gap-1 overflow-x-auto">
+            <button onclick="jumpToSimStep(1)" id="sim-dot-1" class="border-b-2 border-accentYellow text-slate-900 pb-0.5 transition-all whitespace-nowrap">1. Stage 1 Start</button>
+            <button onclick="jumpToSimStep(2)" id="sim-dot-2" class="border-b-2 border-transparent hover:text-slate-700 pb-0.5 transition-all whitespace-nowrap">2. User Edit</button>
+            <button onclick="jumpToSimStep(3)" id="sim-dot-3" class="border-b-2 border-transparent hover:text-slate-700 pb-0.5 transition-all whitespace-nowrap">3. Stage 2 Start</button>
+            <button onclick="jumpToSimStep(4)" id="sim-dot-4" class="border-b-2 border-transparent hover:text-slate-700 pb-0.5 transition-all whitespace-nowrap">4. User Response</button>
+          </div>
+        </div>
+        
+        <!-- Mini Board Preview -->
+        <div class="flex-1 bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex flex-col min-h-0 shadow-inner">
+          <div class="flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-wider mb-2 border-b border-slate-900 pb-1.5 shrink-0">
+            <span>Mini CCTV Board Simulation</span>
+            <span class="text-indigo-400 font-bold">PREVIEW</span>
+          </div>
+          
+          <!-- Mini Tabs Bar -->
+          <div class="flex border-b border-slate-900 text-[10px] font-semibold mb-2 gap-0.5 shrink-0">
+            <div id="sim-tab-research" class="px-2 py-1 border-b-2 border-accentYellow text-slate-200">01-research</div>
+            <div id="sim-tab-spec" class="px-2 py-1 border-b-2 border-transparent text-slate-500">02-spec</div>
+          </div>
+          
+          <!-- Mini Board Content -->
+          <div class="flex-1 flex gap-2 overflow-auto items-start p-1 bg-slate-950 relative min-h-0">
+            <div id="sim-cards-container" class="w-full h-full grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+          </div>
+        </div>
+        
+      </div>
+      
     </div>
   </div>
 
@@ -433,7 +618,7 @@ status: running
 
     // Tab switching
     function switchTab(tabId) {
-      ['playground', 'charts', 'wizard-card', 'wizard-screen', 'cookbook', 'guide'].forEach(t => {
+      ['playground', 'charts', 'wizard-card', 'wizard-screen', 'cookbook', 'guide', 'simulator'].forEach(t => {
         document.getElementById('content-' + t).classList.add('hidden');
         document.getElementById('tab-' + t).classList.remove('border-accentYellow', 'text-slate-900');
         document.getElementById('tab-' + t).classList.add('border-transparent', 'text-slate-500');
@@ -445,6 +630,7 @@ status: running
       // Auto generate wizards when switching to make sure output is populated
       if (tabId === 'wizard-card') generateWizardCard();
       if (tabId === 'wizard-screen') generateWizardScreens();
+      if (tabId === 'simulator') jumpToSimStep(1);
     }
 
     // Copy to clipboard helper
@@ -550,6 +736,205 @@ status: running
       }
 
       document.getElementById('wiz-screen-output').value = JSON.stringify(layoutObj, null, 2);
+    }
+
+    // Pipeline Simulator Logic
+    const simData = {
+      1: {
+        title: "Step 1: Stage 1 Begins (AI Writes Output & Mirror Card)",
+        desc: "🤖 <strong>Stage 1 runs:</strong> The AI agent writes its primary findings to the standard ICM stage folder: <code class='bg-slate-800 text-slate-200 px-1 py-0.5 rounded font-mono text-[10px]'>stages/01-research/output/sources.md</code>.<br/>As an optional visual layer, the agent also writes a card <code class='bg-slate-800 text-slate-200 px-1 py-0.5 rounded font-mono text-[10px]'>001-findings.md</code> under <code class='bg-slate-800 text-slate-200 px-1 py-0.5 rounded font-mono text-[10px]'>_tv/screens/01-research/</code> to mirror and display the results on the CCTV board.<br/><br/><span class='text-indigo-400 font-bold'>Case A: AI Stage Outputs a Card</span>",
+        activeTab: "01-research",
+        files: {
+          sources: { border: "border-emerald-500 bg-emerald-950/20", badge: "[CREATED]", badgeClass: "bg-emerald-500 text-white" },
+          findings: { border: "border-emerald-500 bg-emerald-950/20", badge: "[CCTV MIRROR]", badgeClass: "bg-emerald-600 text-white" },
+          'spec-src': null,
+          spec: null,
+          checkpoint: null,
+          response: null
+        },
+        cards: [
+          {
+            id: "001-findings",
+            title: "001-findings.md",
+            type: "card",
+            status: "running",
+            body: "<h3 class='font-bold text-xs text-slate-800 mb-1 border-b pb-0.5'>Stage 1 Research Results</h3><p class='text-[10px] text-slate-400 mb-1'>source: stages/01-research/output/sources.md</p><ul class='list-disc pl-3 text-[10px] space-y-0.5 text-slate-650'><li>Reviewing codebase structure...</li><li>Detected 3 main design patterns.</li><li>Standard plain markdown is the baseline.</li></ul>"
+          }
+        ]
+      },
+      2: {
+        title: "Step 2: User Direct-Edits Card (Updates Standard ICM File)",
+        desc: "✍️ <strong>User modifies findings:</strong> You click the findings card body directly in the browser and edit the text. Because the card links to <code class='bg-slate-800 text-slate-200 px-1 py-0.5 rounded font-mono text-[10px]'>sources.md</code>, saving the card writes your edits back to the standard ICM stage folder. The next stage will consume this updated text.<br/><br/><span class='text-amber-400 font-bold'>Case B: User Direct-Edits Card Text</span>",
+        activeTab: "01-research",
+        files: {
+          sources: { border: "border-amber-500 bg-amber-950/20", badge: "[USER EDITED]", badgeClass: "bg-amber-500 text-white" },
+          findings: { border: "border-amber-500 bg-amber-950/20", badge: "[UPDATED]", badgeClass: "bg-amber-600 text-white" },
+          'spec-src': null,
+          spec: null,
+          checkpoint: null,
+          response: null
+        },
+        cards: [
+          {
+            id: "001-findings",
+            title: "001-findings.md",
+            type: "card",
+            status: "running",
+            body: "<h3 class='font-bold text-xs text-slate-800 mb-1 border-b pb-0.5 text-amber-700'>Stage 1 Research Results (Edited)</h3><p class='text-[10px] text-slate-400 mb-1'>source: stages/01-research/output/sources.md</p><ul class='list-disc pl-3 text-[10px] space-y-0.5 text-slate-650'><li>Reviewing codebase structure...</li><li>Detected 3 main design patterns.</li><li class='bg-amber-50 text-amber-950 px-1 rounded font-semibold'>[USER EDIT] Focus on Case A/B/C trees</li></ul>"
+          }
+        ]
+      },
+      3: {
+        title: "Step 3: Stage 2 Starts (AI Writes Checkpoint)",
+        desc: "🤖 <strong>Stage 2 (Spec Design) runs:</strong> The agent reads the findings from <code class='bg-slate-800 text-slate-200 px-1 py-0.5 rounded font-mono text-[10px]'>sources.md</code> (with your user edit), writes a spec mirror draft card and an interactive checkpoint card <code class='bg-slate-800 text-slate-200 px-1 py-0.5 rounded font-mono text-[10px]'>002-checkpoint.md</code>. The agent's execution blocks, waiting for human action.<br/><br/><span class='text-emerald-400 font-bold'>Case A: AI Writes Card & Checkpoint</span>",
+        activeTab: "02-spec",
+        files: {
+          sources: null,
+          findings: null,
+          'spec-src': null,
+          spec: { border: "border-emerald-500 bg-emerald-950/20", badge: "[CCTV MIRROR]", badgeClass: "bg-emerald-500 text-white" },
+          checkpoint: { border: "border-rose-500 bg-rose-950/20", badge: "[BLOCKED]", badgeClass: "bg-rose-500 text-white" },
+          response: null
+        },
+        cards: [
+          {
+            id: "001-spec",
+            title: "001-spec.md",
+            type: "card",
+            status: "running",
+            body: "<h3 class='font-bold text-xs text-slate-800 mb-1 border-b pb-0.5'>001-spec.md (Draft Spec)</h3><p class='text-[10px] text-slate-650'>Spec details alignment coordinates of the cards on the board.</p>"
+          },
+          {
+            id: "002-checkpoint",
+            title: "002-checkpoint.md",
+            type: "interactive",
+            status: "blocked",
+            body: "<h3 class='font-bold text-xs text-slate-800 mb-1 border-b pb-0.5 text-rose-700'>Checkpoint: Spec Layout</h3><p class='text-[10px] text-slate-650 mb-2'>Do you approve the proposed spec coordinates?</p><div class='flex gap-1.5'><button onclick='simulateApproval()' class='flex-1 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-bold transition-all'>Approve</button><button class='flex-1 py-1 border border-slate-300 text-slate-700 hover:bg-slate-50 rounded text-[10px] transition-all'>Revision</button></div>"
+          }
+        ]
+      },
+      4: {
+        title: "Step 4: User Actions Checkpoint (Writes Response & Completes)",
+        desc: "👆 <strong>User clicks 'Approve':</strong> Clicking the button writes the response to <code class='bg-slate-800 text-slate-200 px-1 py-0.5 rounded font-mono text-[10px]'>_tv/responses/02-spec/002-checkpoint.md</code>. Stage 2 resumes, consumes the response, and writes the standard ICM spec file: <code class='bg-slate-800 text-slate-200 px-1 py-0.5 rounded font-mono text-[10px]'>stages/02-spec/output/spec.md</code>. The checkpoint card updates to done.<br/><br/><span class='text-indigo-400 font-bold'>Case C: User Interactive Response</span>",
+        activeTab: "02-spec",
+        files: {
+          sources: null,
+          findings: null,
+          'spec-src': { border: "border-emerald-500 bg-emerald-950/20", badge: "[CREATED]", badgeClass: "bg-emerald-500 text-white" },
+          spec: { border: "border-emerald-500 bg-emerald-950/20", badge: "[CCTV MIRROR]", badgeClass: "bg-emerald-600 text-white" },
+          checkpoint: null,
+          response: { border: "border-indigo-500 bg-indigo-950/20", badge: "[RESPONSE WRITTEN]", badgeClass: "bg-indigo-500 text-white" }
+        },
+        cards: [
+          {
+            id: "001-spec",
+            title: "001-spec.md",
+            type: "card",
+            status: "running",
+            body: "<h3 class='font-bold text-xs text-slate-800 mb-1 border-b pb-0.5'>001-spec.md (Draft Spec)</h3><p class='text-[10px] text-slate-650'>Spec details alignment coordinates of the cards on the board.</p>"
+          },
+          {
+            id: "002-checkpoint",
+            title: "002-checkpoint.md",
+            type: "interactive",
+            status: "done",
+            body: "<h3 class='font-bold text-xs text-slate-800 mb-1 border-b pb-0.5 text-emerald-700'>Checkpoint: Spec Layout</h3><p class='text-[10px] text-slate-650 mb-2'>Do you approve the proposed spec coordinates?</p><div class='bg-emerald-50 border border-emerald-200 text-emerald-950 p-1.5 rounded text-center text-[10px] font-bold'>Approved! Response written to file.</div>"
+          }
+        ]
+      }
+    };
+
+    let currentSimStep = 1;
+
+    function renderSimStep(step) {
+      currentSimStep = step;
+      const data = simData[step];
+      
+      document.getElementById('sim-step-title').innerHTML = data.title;
+      document.getElementById('sim-step-desc').innerHTML = data.desc;
+      
+      document.getElementById('sim-btn-prev').disabled = (step === 1);
+      document.getElementById('sim-btn-next').disabled = (step === 4);
+      
+      for (let i = 1; i <= 4; i++) {
+        const dot = document.getElementById('sim-dot-' + i);
+        if (i === step) {
+          dot.className = "border-b-2 border-indigo-650 text-indigo-400 pb-0.5 font-bold transition-all text-[10px] whitespace-nowrap";
+        } else {
+          dot.className = "border-b-2 border-transparent text-slate-400 hover:text-slate-700 pb-0.5 transition-all text-[10px] whitespace-nowrap";
+        }
+      }
+      
+      const tabResearch = document.getElementById('sim-tab-research');
+      const tabSpec = document.getElementById('sim-tab-spec');
+      if (data.activeTab === '01-research') {
+        tabResearch.className = "px-2 py-1 border-b-2 border-accentYellow text-slate-200";
+        tabSpec.className = "px-2 py-1 border-b-2 border-transparent text-slate-500";
+      } else {
+        tabResearch.className = "px-2 py-1 border-b-2 border-transparent text-slate-500";
+        tabSpec.className = "px-2 py-1 border-b-2 border-accentYellow text-slate-200";
+      }
+      
+      const files = ['sources', 'spec-src', 'findings', 'spec', 'checkpoint', 'response'];
+      files.forEach(f => {
+        const fileNode = document.getElementById('sim-file-' + f);
+        const fileBadge = document.getElementById('sim-badge-' + f);
+        const fData = data.files[f];
+        
+        if (fData) {
+          fileNode.className = `flex justify-between items-center p-1 rounded border transition-all ${fData.border}`;
+          fileBadge.className = `text-[9px] px-1 rounded font-semibold ${fData.badgeClass}`;
+          fileBadge.textContent = fData.badge;
+          fileBadge.classList.remove('hidden');
+        } else {
+          fileNode.className = "flex justify-between items-center p-1 rounded border border-transparent transition-all";
+          fileBadge.className = "text-[9px] px-1 rounded font-semibold hidden";
+          fileBadge.textContent = "";
+        }
+      });
+      
+      const container = document.getElementById('sim-cards-container');
+      container.innerHTML = '';
+      
+      data.cards.forEach(c => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = "bg-white border border-slate-200 rounded p-2 flex flex-col justify-between shadow-sm relative h-36 overflow-y-auto";
+        
+        let statusBadge = '';
+        if (c.status === 'blocked') {
+          statusBadge = '<span class="px-1 py-0.5 rounded bg-rose-100 text-rose-800 text-[8px] font-bold uppercase">Blocked</span>';
+        } else if (c.status === 'done') {
+          statusBadge = '<span class="px-1 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[8px] font-bold uppercase">Done</span>';
+        } else {
+          statusBadge = '<span class="px-1 py-0.5 rounded bg-slate-105 text-slate-600 text-[8px] font-bold uppercase">Running</span>';
+        }
+        
+        cardDiv.innerHTML = `
+          <div class="flex justify-between items-center border-b border-slate-100 pb-1 mb-1.5 shrink-0">
+            <span class="text-[9px] font-bold text-slate-500 font-mono">${c.title}</span>
+            ${statusBadge}
+          </div>
+          <div class="flex-1 font-sans text-xs">
+            ${c.body}
+          </div>
+        `;
+        container.appendChild(cardDiv);
+      });
+    }
+    
+    function changeSimStep(dir) {
+      const nextStep = currentSimStep + dir;
+      if (nextStep >= 1 && nextStep <= 4) {
+        renderSimStep(nextStep);
+      }
+    }
+    
+    function jumpToSimStep(step) {
+      renderSimStep(step);
+    }
+
+    function simulateApproval() {
+      jumpToSimStep(4);
     }
   </script>
 </body>

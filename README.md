@@ -27,51 +27,34 @@ This is the same filesystem-as-interface idea ICM already uses for control
 flow — here it drives presentation instead. ICM decides *what the agent does*;
 this decides *what you see*. Both halves meet on plain files.
 
-## 🎮 Interactive User Guide & Playground
+## 🗺️ How it Works: The Baseline
 
-CCTV comes with a built-in, fully interactive user manual and playground directly on the board! 
+By default, everything on the dashboard is driven by **plain Markdown (`.md`) files** inside the `_tv/screens/` directory. This is the fundamental starting point:
+1. **Tabs**: Every subfolder under `_tv/screens/` forms a tab in the header (e.g. `_tv/screens/demo/` is the "demo" tab).
+2. **Cards**: Every `.md` file inside a tab's subfolder is rendered as a visual card on the board.
+3. **No Code Needed**: Your agent or you can write standard text and formatting.
 
-When you start the server and open the board in your browser, select the **`00-guide`** tab in the header. Inside this playground, you can:
-- **Sandbox Controls**: Experiment with buttons, range sliders, and radio selectors, and watch the **Live JSON Payload** box update in real time to see exactly what payload structure would be written to the filesystem.
-- **SVG Chart Sandbox**: Drag sliders to adjust Accuracy, Speed, or Safety metrics, and watch the SVG coordinates recalculate and redraw the bar heights and label coordinates live.
-- **Card UI Wizard**: Design custom forms or checkpoints by configuring input values in a wizard to generate copy-pasteable Markdown cards immediately.
-- **Screen Layout Wizard**: Enter stage names to automatically generate a step-by-step checklist of shell commands and calculate the coordinate blocks for `_layout.json` (such as the side-by-side 2-card pattern).
-- **Code Templates**: Access copy-pasteable HTML snippets for range sliders, radio buttons, choices, or charts.
-- **Full User Guide**: Read the entire [USER-GUIDE.md](file:///Users/munron/icm-television/USER-GUIDE.md) text directly on your board.
+## 🎛️ Adding HTML (Optional)
 
-## 🏎️ GTA CCTV Car Chase Simulation
+You only need to use HTML in two specific cases:
+1. **Custom Styling**: If standard Markdown formatting is insufficient for your layout.
+2. **Interactivity (Checkpoints)**: If you need simple controls (like buttons, sliders, or forms) to send input back to the agent.
+   - An interactive card uses `type: interactive` in its frontmatter.
+   - You include simple HTML controls that call the global `respond(value)` function on user action.
+   - This writes the selected value to `_tv/responses/<screen>/<id>.md` which the agent reads to resume execution.
 
-CCTV includes a top-down police chase simulation in a 6-block city grid to demonstrate how real-time file updates can act as directional inputs.
+---
 
-To view and control the simulation:
-1. Start the server and navigate to the **`gta-chase`** tab in the header.
-2. You will see three cards:
-   - **CCTV: City Car Chase**: The canvas animation showing the red car fleeing the blue police car.
-   - **Directional Control Panel**: Buttons to steer Left, Right, or Straight.
-   - **Active Telemetry & Command**: A text-based telemetry card showing the raw steering value written to the file system.
-3. **Control Methods**:
-   - **Clicking**: Click the steering buttons on the controller card.
-   - **Keyboard**: Click the controller card to focus it, then steer using **Arrow Keys** (←/→/↑) or **WASD** keys.
-   - **CLI Terminal**: Steer directly from your terminal by running:
-     ```bash
-     python3 scripts/steer.py <left|right|straight>
-     ```
-     *Watch the car immediately make the turn at the next intersection as the file changes propagate over WebSockets!*
+## 🚀 Advanced Features & Examples (Optional)
 
-## ☁️ Cloud-Native Board Previews (Claude & Gemini)
+To show what is possible if your pipeline requires it, CCTV includes several optional tools and advanced examples:
 
-You can render and interact with your multi-stage CCTV board directly inside your cloud AI chat windows (e.g. Claude's Artifacts or Gemini's code runner) without running a local node server.
+* **🏎️ GTA Chase Simulation (`gta-chase` tab)**: A sophisticated canvas-based car chase demonstrating real-time interactive telemetry. The getaway car turns at the next grid junction when direction values are written to `003-command.md` (via clicking on-screen buttons, using arrow keys, or running `python3 scripts/steer.py <left|right|straight>` in the terminal).
+* **☁️ Cloud-Native Previews**: Paste the instructions in [CLAUDE-CCTV-INSTRUCTIONS.md](file:///Users/munron/icm-television/CLAUDE-CCTV-INSTRUCTIONS.md) to Claude or Gemini to let them self-generate and preview entire board layouts inside their chat interfaces. You can also run `python3 scripts/export_react.py` or `python3 scripts/export_html.py` to export your current local board to the cloud.
+* **🎮 Interactive Guide & Playground (`00-guide` tab)**: A built-in sandbox showing SVG metric charts, range sliders, and wizards to automatically calculate layout coordinate blocks for `_layout.json`.
+* **🛠️ CLI Helper Scripts**: Python scripts to bootstrap layout coordinates (`python3 scripts/setup_screens.py`) and generate interactive cards (`python3 scripts/generate_card.py`).
 
-### 1. Manual State Export
-If you want to copy your active local screen layouts and cards into the cloud chat:
-- **For Claude**: Run `python3 scripts/export_react.py` and copy the generated [exports/Board.jsx](file:///Users/munron/icm-television/exports/Board.jsx) text directly into Claude. It will compile and display a live React board.
-- **For Gemini / Web Browser**: Run `python3 scripts/export_html.py` and paste the generated [exports/Board.html](file:///Users/munron/icm-television/exports/Board.html) text. Gemini will run it as a standalone interactive web page.
-
-### 2. Auto-Generating Boards in Chat
-To make Claude or Gemini understand the card and screen coordinates natively so they can display documentation or research they write directly inside a visual CCTV board in your chat session:
-1. Paste the instructions in [CLAUDE-CCTV-INSTRUCTIONS.md](file:///Users/munron/icm-television/CLAUDE-CCTV-INSTRUCTIONS.md) into your system prompt, custom Gem, or Claude Project Knowledge.
-2. Ask the assistant: *"Generate a spec for risk-tiering and show it to me in a CCTV layout."*
-3. The AI will package your specs into cards, calculate spacing coordinates, and output the complete board template as a preview panel.
+---
 
 ## Ownership (why nothing gets clobbered)
 

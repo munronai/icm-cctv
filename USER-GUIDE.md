@@ -2,67 +2,50 @@
 
 Welcome! **ICM CCTV** is a visual dashboard for watching and interacting with AI agent pipelines. 
 
-Because CCTV is built on the **filesystem-as-interface** principle, you don't need to write complex React code or databases. To change what is on the board, you or your agent only need to write simple Markdown files to folders.
-
-This guide will teach you how to set up layouts, build interactive buttons/inputs, and organize your screens.
+Because CCTV is built on the **filesystem-as-interface** principle, you don't need databases, complex APIs, or React. To build a board, you or your agent only write standard text files to folders.
 
 ---
 
-## 🚀 Quick Start (Try it in 30 seconds)
+## 🎯 The Baseline: Plain Markdown Cards (`.md`)
 
-1. Make sure your server is running:
-   ```bash
-   npm start
-   ```
-2. Open [http://localhost:4321](http://localhost:4321) in your browser.
-3. In a terminal, run the screen initializer script:
-   ```bash
-   python3 scripts/setup_screens.py
-   ```
-   *Enter screen names (like `01-ingest, 02-process`), and watch the tabs appear live in your browser!*
-4. Toggle the stylesheet switcher on the top right to swap between the **Classic** paper style and the dark **Tailwind** console style.
-
----
-
-## 📂 Understanding the Folder Structure
-
-Everything on the dashboard is driven by files inside the `_tv/` directory:
+By default, every card on your board is just a **plain Markdown (`.md`) file**. This is the fundamental starting point:
+1. **Tabs**: Every subfolder under `_tv/screens/` renders as a tab in the header.
+2. **Cards**: Every `.md` file inside a screen folder renders as a card.
+3. **Writing**: You can write standard text, tables, headers, and bullet points. No code required.
 
 ```
 _tv/
-├── screens/
-│   ├── demo/                  <-- A tab in your browser named "demo"
-│   │   ├── 001-welcome.md     <-- A card on the board
-│   │   ├── 002-status.md      <-- Another card on the board
-│   │   └── _layout.json       <-- Generated automatically when you drag cards
-└── responses/
-    └── demo/
-        └── 002-status.md      <-- Where clicked button values land
+└── screens/
+    └── demo/                  <-- A tab in your browser named "demo"
+        ├── 001-welcome.md     <-- A standard text card
+        ├── 002-status.md      <-- Another standard text card
+        └── _layout.json       <-- Generated automatically when you drag/resize cards
 ```
-
-- **Directories under `_tv/screens/`** are rendered as **tabs** in the top navigation bar.
-- **`.md` files** in those directories are rendered as **cards** on the board.
-- **`_layout.json`** is managed by the browser. When you drag or resize cards on the screen, it automatically saves their coordinates. Your agent will never overwrite your layout!
 
 ---
 
-## 🧠 Using Custom Agent Skills
+## 🎛️ Adding HTML (Only When Necessary)
 
-To make building boards and cards easy, the project includes two pre-packaged AI skills. These work in **Antigravity**, **Claude Code**, and **Codex** (documented in [skill/SKILL.md](file:///Users/munron/icm-television/skill/SKILL.md)):
+You only need to write HTML in two cases:
+1. **Custom Formatting**: When Markdown's styling is insufficient (e.g. you want custom colors, grids, or inline visuals).
+2. **Interactive Checkpoints**: When you need simple controls (like buttons, range sliders, or radio selectors) to send input back to the agent.
+   - Set `type: interactive` and `status: blocked` in the card frontmatter.
+   - Use simple HTML controls inside the card that call `respond(value)` when clicked.
+   - The selected choice writes to `_tv/responses/<screen>/<id>.md`. The agent reads this file to resume.
+
+---
+
+## 🧠 Custom Agent Skills
+
+To make building boards and cards easy, the project includes two optional helper scripts:
 
 ### 1. Interactive Card Builder (`scripts/generate_card.py`)
-- **What it does**: Runs in the terminal and guides you step-by-step to create interactive cards. It generates the correct frontmatter and HTML tags for buttons, forms, and charts.
-- **Command**:
-  ```bash
-  python3 scripts/generate_card.py
-  ```
+- **What it does**: Runs in the terminal and guides you step-by-step to create interactive cards. It generates the correct frontmatter and HTML templates for buttons or sliders.
+- **Command**: `python3 scripts/generate_card.py`
 
 ### 2. Screen Layout Setup (`scripts/setup_screens.py`)
-- **What it does**: Initializes a directory structure with layout parameters and demo templates so you can visualize a new stage pipeline immediately.
-- **Command**:
-  ```bash
-  python3 scripts/setup_screens.py
-  ```
+- **What it does**: Initializes a directory structure with layout coordinates and demo cards so you can see a new stage screen immediately.
+- **Command**: `python3 scripts/setup_screens.py`
 
 ---
 

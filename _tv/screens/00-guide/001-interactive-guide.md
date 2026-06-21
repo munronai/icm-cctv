@@ -332,66 +332,49 @@ status: running
   <div id="content-guide" class="flex-1 flex flex-col gap-3 min-h-0 hidden overflow-y-auto pr-1">
     <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm text-xs leading-relaxed text-slate-700 space-y-4">
       <div>
-        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🚀 Quick Start Guide</h3>
-        <p class="mb-2">Get up and running in under 30 seconds:</p>
-        <ol class="list-decimal pl-4 space-y-1">
-          <li>Ensure your CCTV server is active: <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">npm start</code></li>
-          <li>Open <a href="http://localhost:4321" target="_blank" class="text-accentYellow hover:underline">http://localhost:4321</a> in your web browser.</li>
-          <li>Run the screen setup wizard: <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/setup_screens.py</code></li>
-          <li>Watch tabs appear instantly as directory folders are watched!</li>
-        </ol>
-      </div>
-
-      <div>
-        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">📂 Folder Architecture</h3>
-        <p class="mb-2">Your visual board is completely driven by plain files inside the <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_tv/</code> folder:</p>
+        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🎯 The Baseline: Plain Markdown Cards</h3>
+        <p class="mb-2">By default, every card on your board is just a <strong>plain Markdown (.md) file</strong>. This is the fundamental starting point:</p>
         <ul class="list-disc pl-4 space-y-1">
           <li><strong>Tabs</strong>: Every subfolder inside <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_tv/screens/</code> forms a tab (e.g. <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">demo/</code>).</li>
-          <li><strong>Cards</strong>: Every <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">.md</code> file in a screen folder renders as a card on that board.</li>
-          <li><strong>Layout</strong>: A <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_layout.json</code> file saves card positioning/sizes. It is owned by your browser drags and won't be clobbered by your agent.</li>
+          <li><strong>Cards</strong>: Every <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">.md</code> file in a screen folder renders as a card.</li>
+          <li><strong>Writing</strong>: You can write standard text, headers, tables, and bullet points. No code is required.</li>
         </ul>
       </div>
 
       <div>
-        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🧠 Agent & Developer Skills</h3>
-        <p class="mb-2">This workspace ships with two powerful helper skills. These instruct other AI agents (like Claude Code, Codex, and Claude.ai chat) on how to generate layouts and forms:</p>
+        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🎛️ Adding HTML (Only When Necessary)</h3>
+        <p class="mb-2">You only need to write HTML in two cases:</p>
         <ul class="list-disc pl-4 space-y-1">
-          <li><strong>Interactive Card Builder</strong>: Instructs the agent on structuring interactive templates. Run command: <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/generate_card.py</code></li>
-          <li><strong>Screen Layout Setup</strong>: Instructs on setting up directories. Run command: <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/setup_screens.py</code></li>
+          <li><strong>Custom Formatting</strong>: When Markdown is insufficient for custom layout structures.</li>
+          <li><strong>Interactive Checkpoints</strong>: When you need simple controls (like buttons, sliders, or forms) to send choice responses back to the agent.
+            <ul class="list-circle pl-4 mt-1 space-y-0.5 text-slate-500">
+              <li>Set <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">type: interactive</code> and <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">status: blocked</code> in card frontmatter.</li>
+              <li>Use simple HTML controls that call <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">respond(value)</code> when clicked.</li>
+              <li>This writes to <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_tv/responses/<screen>/<id>.md</code> for the agent to read.</li>
+            </ul>
+          </li>
         </ul>
       </div>
 
       <div>
-        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🎨 Layout Design Patterns</h3>
-        <div class="space-y-3">
-          <div>
-            <h4 class="font-bold text-slate-800">Pattern A: The 2-Card Side-by-Side (Recommended)</h4>
-            <p class="mt-1">Put a data card and an action/decision card on the <strong>same screen</strong>. For example, on the <code class="bg-slate-100 px-1 py-0.5 rounded">02-spec</code> screen, place `001-spec-data.md` at <code class="bg-slate-100 px-1 py-0.5 rounded">x: 24</code>, and `002-action.md` at <code class="bg-slate-100 px-1 py-0.5 rounded">x: 380</code> inside the <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_layout.json</code> coordinate block. The user can view specs on the left and approve on the right without changing tabs.</p>
-          </div>
-          <div>
-            <h4 class="font-bold text-slate-800">Pattern B: Multiple Screens per Stage</h4>
-            <p class="mt-1">Create separate directories for the same stage (e.g., <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">01-research-tables</code> and <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">01-research-charts</code>) to keep complex data summaries organized in tabs.</p>
-          </div>
-          <div>
-            <h4 class="font-bold text-slate-800">Pattern C: Real-Time Simulation Control (GTA Chase)</h4>
-            <p class="mt-1">You can design active playgrounds where cards interact with each other in real-time. For example, on the <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">gta-chase</code> screen, an interactive canvas simulation is driven by command signals. Both on-screen button controls and terminal telemetry scripts (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/steer.py</code>) rewrite the active telemetry file, sending WebSocket updates to guide vehicles live on the map.</p>
-          </div>
-          <div>
-            <h4 class="font-bold text-slate-800">Pattern D: Cloud-Native Presentation (Claude & Gemini)</h4>
-            <p class="mt-1">If you do not want to run a local dev server, you can render a mock CCTV dashboard directly in the cloud chat pane: Claude renders React JSX Artifacts (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/export_react.py</code>) and Gemini/browsers render HTML/JS previews (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">python3 scripts/export_html.py</code>). Feeding <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">CLAUDE-CCTV-INSTRUCTIONS.md</code> to the cloud AI enables it to automatically build and display these layout boards on demand!</p>
-          </div>
-        </div>
+        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🚀 Advanced Features & Examples (Optional)</h3>
+        <p class="mb-2">CCTV includes optional tools and examples to show what is possible:</p>
+        <ul class="list-disc pl-4 space-y-1.5">
+          <li><strong>🏎️ GTA Chase Simulation (<code class="bg-slate-100 px-1 py-0.5 rounded">gta-chase</code>)</strong>: A canvas-based car chase demonstrating real-time telemetry inputs by writing directions to a file.</li>
+          <li><strong>☁️ Cloud-Native Previews</strong>: Use <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">CLAUDE-CCTV-INSTRUCTIONS.md</code> to let Claude/Gemini self-generate and preview board layouts inside their chat interfaces.</li>
+          <li><strong>🛠️ CLI Scripts</strong>: Optional scripts to setup screens (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">setup_screens.py</code>) or build cards (<code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">generate_card.py</code>).</li>
+        </ul>
       </div>
 
       <div>
         <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-1 mb-2">🤝 How Your AI Agent Interacts</h3>
         <p class="mb-2">The sequential execution model works as follows:</p>
-        <ul class="list-disc pl-4 space-y-1">
-          <li><strong>Emit</strong>: The agent writes files to <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_tv/screens/<stage>/</code> to show stage output.</li>
-          <li><strong>Checkpoint</strong>: When the agent hits a choice checkpoint, it writes a <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">type: interactive</code> card with <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">status: blocked</code> and stops.</li>
-          <li><strong>Respond</strong>: You click a choice on the board, which executes <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">respond(value)</code> and writes to <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_tv/responses/<stage>/<id>.md</code>.</li>
-          <li><strong>Resume</strong>: You tell the agent in chat to continue. It reads the response file and resumes executing with your input.</li>
-        </ul>
+        <ol class="list-decimal pl-4 space-y-1">
+          <li><strong>Emit</strong>: The agent writes files to <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">_tv/screens/<stage>/</code> to show output.</li>
+          <li><strong>Checkpoint</strong>: For decisions, the agent writes an interactive card with <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">status: blocked</code> and stops.</li>
+          <li><strong>Respond</strong>: You click a button, which calls <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[10px]">respond(value)</code> and writes to the response folder.</li>
+          <li><strong>Resume</strong>: You tell the agent in chat to continue. It reads the response file and resumes.</li>
+        </ol>
       </div>
     </div>
   </div>

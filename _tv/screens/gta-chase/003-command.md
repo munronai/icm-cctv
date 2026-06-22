@@ -3,6 +3,6 @@ id: 003-command
 title: Active Telemetry & Command
 type: card
 status: running
-updated: '2026-06-20T13:34:27'
+updated: '2026-06-22T09:59:11'
 ---
-straight
+left

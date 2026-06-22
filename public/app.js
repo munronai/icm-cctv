@@ -156,7 +156,7 @@ function cardEl(a) {
     : `<span class="card-title font-sans font-medium text-[13.5px] flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-foreground">${a.title}</span>`;
 
   const headRight = editing
-    ? `<button class="done font-mono text-[10.5px] text-terminal-bg bg-accent-yellow border-none rounded px-2 py-[3px] cursor-pointer">save ✓</button>`
+    ? `<button class="done save-btn font-mono text-[10.5px] text-terminal-bg bg-accent-yellow border-none rounded px-2 py-[3px] cursor-pointer">save ✓</button>`
     : `<button class="pin ${a.pinned ? "on text-accent-yellow" : "text-foreground/30"} border-none bg-transparent cursor-pointer text-[13px] leading-none p-0.5 hover:text-foreground" title="pin">${a.pinned ? "●" : "○"}</button>`;
 
   const bodyHtml = editing
@@ -181,7 +181,7 @@ function cardEl(a) {
     const ta = el.querySelector(".body-input");
     ta.oninput = (e) => (edit.body = e.target.value);
     ta.onkeydown = (e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") saveCard(); };
-    el.querySelector(".done").onclick = saveCard;
+    el.querySelector(".save-btn").onclick = saveCard;
     setTimeout(() => ta.focus(), 0);
   } else {
     el.querySelector(".card-body").onclick = () => startEdit(a);

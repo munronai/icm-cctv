@@ -184,12 +184,29 @@ function cardEl(a) {
     el.querySelector(".save-btn").onclick = saveCard;
     setTimeout(() => ta.focus(), 0);
   } else {
-    el.querySelector(".card-body").onclick = () => startEdit(a);
-    el.querySelector(".pin").onclick = (e) => { e.stopPropagation(); a.pinned = !a.pinned; saveLayout(); render(); };
+    el.querySelector(".card-body").onclick = () => {
+      const latestA = (state.screens[active] || []).find(x => x.id === a.id);
+      if (latestA) startEdit(latestA);
+    };
+    el.querySelector(".pin").onclick = (e) => {
+      e.stopPropagation();
+      const latestA = (state.screens[active] || []).find(x => x.id === a.id);
+      if (latestA) {
+        latestA.pinned = !latestA.pinned;
+        saveLayout();
+        render();
+      }
+    };
     dragify(el, el.querySelector("[data-drag]"), a, "move");
     dragify(el, el.querySelector(".resize"), a, "resize");
   }
-  if (a.source && !editing) el.querySelector(".edit-output").onclick = (e) => { e.stopPropagation(); openOutput(a.source); };
+  if (a.source && !editing) {
+    el.querySelector(".edit-output").onclick = (e) => {
+      e.stopPropagation();
+      const latestA = (state.screens[active] || []).find(x => x.id === a.id);
+      if (latestA && latestA.source) openOutput(latestA.source);
+    };
+  }
   return el;
 }
 
@@ -258,18 +275,30 @@ function renderOverlay() {
 function dragify(card, handle, a, mode) {
   if (!handle) return;
   handle.addEventListener("pointerdown", (e) => {
-    if (a.pinned) return;
+    // Dynamically retrieve the latest card data from state to prevent stale closures
+    const latestA = (state.screens[active] || []).find(x => x.id === a.id);
+    if (!latestA || latestA.pinned) return;
+
     e.preventDefault();
     try { handle.setPointerCapture?.(e.pointerId); } catch (err) {}
     card.classList.add("dragging");
     document.body.classList.add("dragging-active");
-    const sx = e.clientX, sy = e.clientY, ox = a.x, oy = a.y, ow = a.w, oh = a.h;
-    a.z = Math.max(0, ...(state.screens[active] || []).map((x) => x.z)) + 1;
-    card.style.zIndex = a.z;
+    const sx = e.clientX, sy = e.clientY, ox = latestA.x, oy = latestA.y, ow = latestA.w, oh = latestA.h;
+    latestA.z = Math.max(0, ...(state.screens[active] || []).map((x) => x.z)) + 1;
+    card.style.zIndex = latestA.z;
     const move = (ev) => {
       const dx = ev.clientX - sx, dy = ev.clientY - sy;
-      if (mode === "move") { a.x = Math.max(0, ox + dx); a.y = Math.max(0, oy + dy); card.style.left = a.x + "px"; card.style.top = a.y + "px"; }
-      else { a.w = Math.max(200, ow + dx); a.h = Math.max(120, oh + dy); card.style.width = a.w + "px"; card.style.height = a.h + "px"; }
+      if (mode === "move") {
+        latestA.x = Math.max(0, ox + dx);
+        latestA.y = Math.max(0, oy + dy);
+        card.style.left = latestA.x + "px";
+        card.style.top = latestA.y + "px";
+      } else {
+        latestA.w = Math.max(200, ow + dx);
+        latestA.h = Math.max(120, oh + dy);
+        card.style.width = latestA.w + "px";
+        card.style.height = latestA.h + "px";
+      }
     };
     const up = () => {
       card.classList.remove("dragging");

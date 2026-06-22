@@ -5,7 +5,7 @@ type: card
 stage: 2
 status: running
 source: stages/02-spec/output/spec.md
-updated: '2026-06-22T10:01:03'
+updated: '2026-06-22T10:07:56'
 ---
 Drafting the risk-tier classification spec from stage 1 sources.
 

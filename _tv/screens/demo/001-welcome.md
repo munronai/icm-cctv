@@ -3,7 +3,7 @@ id: 001-welcome
 title: How this board works
 type: card
 pinned: true
-updated: '2026-06-19T17:37:15'
+updated: '2026-06-22T09:43:08'
 ---
 This card is a file: `_tv/screens/demo/001-welcome.md`.
 

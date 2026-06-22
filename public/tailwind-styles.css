@@ -283,6 +283,9 @@
   .z-5 {
     z-index: 5;
   }
+  .z-50 {
+    z-index: 50;
+  }
   .z-\[10000\] {
     z-index: 10000;
   }
@@ -298,8 +301,8 @@
   .inline {
     display: inline;
   }
-  .h-3\.5 {
-    height: calc(var(--spacing) * 3.5);
+  .h-4 {
+    height: calc(var(--spacing) * 4);
   }
   .h-\[7px\] {
     height: 7px;
@@ -319,8 +322,8 @@
   .h-full {
     height: 100%;
   }
-  .w-3\.5 {
-    width: calc(var(--spacing) * 3.5);
+  .w-4 {
+    width: calc(var(--spacing) * 4);
   }
   .w-\[7px\] {
     width: 7px;
@@ -512,10 +515,10 @@
     --tw-gradient-from: transparent;
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
-  .to-black\/10 {
-    --tw-gradient-to: color-mix(in srgb, #000 10%, transparent);
+  .to-black\/20 {
+    --tw-gradient-to: color-mix(in srgb, #000 20%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
-      --tw-gradient-to: color-mix(in oklab, var(--color-black) 10%, transparent);
+      --tw-gradient-to: color-mix(in oklab, var(--color-black) 20%, transparent);
     }
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }

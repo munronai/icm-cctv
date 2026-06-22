@@ -174,7 +174,7 @@ function cardEl(a) {
     </div>
     <div class="card-body p-3 text-[13px] leading-relaxed overflow-auto flex-1 text-foreground">${bodyHtml}</div>
     <div class="card-foot font-mono text-[10px] text-foreground/50 p-[6px_11px] border-t border-border/10 whitespace-nowrap overflow-hidden text-ellipsis flex gap-1.5 items-center bg-foreground/5"><span class="arrow text-foreground/30">▸</span><span>${a.file}</span>${a.source ? `<span class="arrow text-foreground/30">→</span><span>${a.source}</span>${editOutput}` : ""}</div>
-    <div class="resize absolute right-0 bottom-0 w-3.5 h-3.5 cursor-nwse-resize bg-gradient-to-br from-transparent to-black/10 rounded-br-lg"></div>`;
+    <div class="resize absolute right-0 bottom-0 w-4 h-4 cursor-nwse-resize bg-gradient-to-br from-transparent to-black/20 rounded-br-lg z-50"></div>`;
 
   if (editing) {
     el.querySelector(".title-input").oninput = (e) => (edit.title = e.target.value);
@@ -202,6 +202,15 @@ function startEdit(a) {
 async function saveCard() {
   if (!edit) return;
   const payload = { screen: active, id: edit.id, title: edit.title, body: edit.body };
+  
+  // Temporarily update local state to prevent UI flicker before server sync
+  const cards = state.screens[active] || [];
+  const card = cards.find(c => c.id === edit.id);
+  if (card) {
+    if (edit.title != null) card.title = edit.title;
+    if (edit.body != null) card.body = edit.body;
+  }
+
   edit = null;
   render();
   try { await fetch("/api/content", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }); }
@@ -250,7 +259,8 @@ function dragify(card, handle, a, mode) {
   if (!handle) return;
   handle.addEventListener("pointerdown", (e) => {
     if (a.pinned) return;
-    e.preventDefault(); handle.setPointerCapture?.(e.pointerId);
+    e.preventDefault();
+    try { handle.setPointerCapture?.(e.pointerId); } catch (err) {}
     card.classList.add("dragging");
     document.body.classList.add("dragging-active");
     const sx = e.clientX, sy = e.clientY, ox = a.x, oy = a.y, ow = a.w, oh = a.h;
@@ -264,7 +274,7 @@ function dragify(card, handle, a, mode) {
     const up = () => {
       card.classList.remove("dragging");
       document.body.classList.remove("dragging-active");
-      handle.releasePointerCapture?.(e.pointerId);
+      try { handle.releasePointerCapture?.(e.pointerId); } catch (err) {}
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
       saveLayout();

@@ -59,6 +59,22 @@ async function readScreen(screenName) {
     const id = data.id || file.replace(/\.md$/, "");
     const lay = layout[id] || {};
     const col = i % 3, row = Math.floor(i / 3);
+
+    // Resolve dynamic source file content if source field is present
+    let body = content.trim();
+    if (data.source) {
+      try {
+        const srcPath = safePath(data.source);
+        if (existsSync(srcPath)) {
+          const srcRaw = await readFile(srcPath, "utf8");
+          const parsedSrc = matter(srcRaw);
+          body = parsedSrc.content.trim();
+        }
+      } catch (err) {
+        console.error(`  [server] failed to read source file for card ${id}: ${err.message}`);
+      }
+    }
+
     artifacts.push({
       id, file: `_tv/screens/${screenName}/${file}`,
       title: data.title || id, type: data.type || "card",
@@ -67,7 +83,7 @@ async function readScreen(screenName) {
       pinned: lay.pinned ?? data.pinned ?? false,
       x: lay.x ?? 24 + col * 360, y: lay.y ?? 24 + row * 260,
       w: lay.w ?? 332, h: lay.h ?? 232, z: lay.z ?? i,
-      body: content.trim(),
+      body,
     });
     i++;
   }
@@ -92,7 +108,27 @@ async function writeCard(screen, id, { title, body }) {
   const data = { ...parsed.data };
   if (title != null) data.title = title;
   data.updated = new Date().toISOString().slice(0, 19);
-  await writeFile(file, matter.stringify(body ?? parsed.content, data));
+
+  if (data.source && body != null) {
+    try {
+      const srcPath = safePath(data.source);
+      let srcData = {};
+      if (existsSync(srcPath)) {
+        const srcRaw = await readFile(srcPath, "utf8");
+        const parsedSrc = matter(srcRaw);
+        srcData = { ...parsedSrc.data };
+      }
+      await writeFile(srcPath, matter.stringify(body, srcData));
+      console.log(`  [server] wrote user changes to source file: ${data.source}`);
+    } catch (err) {
+      console.error(`  [server] failed to write to source file for card ${id}: ${err.message}`);
+    }
+    // Update the card file itself with new title/updated metadata, keeping its own body unchanged
+    await writeFile(file, matter.stringify(parsed.content, data));
+  } else {
+    // Normal card: write body to the card file itself
+    await writeFile(file, matter.stringify(body ?? parsed.content, data));
+  }
 }
 
 // ---------- HTTP ----------

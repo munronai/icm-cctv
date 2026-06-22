@@ -114,7 +114,7 @@ body {
 }
 .card-foot .arrow { color: #b6b5ad; }
 
-.resize { position: absolute; right: 2px; bottom: 2px; width: 14px; height: 14px; cursor: nwse-resize;
+.resize { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; cursor: nwse-resize; z-index: 50;
   background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,.18) 50%); border-radius: 0 0 8px 0; }
 
 .status {

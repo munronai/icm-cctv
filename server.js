@@ -103,6 +103,7 @@ const server = http.createServer(async (req, res) => {
   const json = (code, obj) => { res.writeHead(code, { "content-type": "application/json" }); res.end(JSON.stringify(obj)); };
   try {
     const u = new URL(req.url, "http://x");
+    console.log(`  [http] ${req.method} ${u.pathname}`);
 
     if (req.method === "GET" && u.pathname === "/api/state") return json(200, await buildState());
 
@@ -172,7 +173,9 @@ wss.on("connection", async (ws) => ws.send(JSON.stringify({ type: "state", ...(a
 
 // ---------- watch loop ----------
 let t;
-chokidar.watch(SCREENS_DIR, { ignoreInitial: true }).on("all", () => {
+const STAGES_DIR = path.join(ROOT, "stages");
+chokidar.watch([SCREENS_DIR, STAGES_DIR], { ignoreInitial: true }).on("all", (event, filepath) => {
+  console.log(`  [fs watch] ${event}: ${path.relative(ROOT, filepath)}`);
   clearTimeout(t); t = setTimeout(broadcast, 80);
 });
 

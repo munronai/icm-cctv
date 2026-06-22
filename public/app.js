@@ -203,9 +203,9 @@ async function saveCard() {
   if (!edit) return;
   const payload = { screen: active, id: edit.id, title: edit.title, body: edit.body };
   edit = null;
+  render();
   try { await fetch("/api/content", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }); }
   catch (e) {}
-  // the file write triggers a WS push that re-renders with the saved content
 }
 
 // ---- output-file overlay editor ----

@@ -82,15 +82,27 @@ function render() {
     const existing = existingCards[a.id];
     
     if (existing) {
-      if (edit && edit.id === a.id) continue; // Skip active edits
+      const isCurrentlyEditingInDom = existing.classList.contains("editing");
+      const shouldBeEditing = !!(edit && edit.id === a.id);
+      
+      // If we are currently editing and should continue editing, skip content update to avoid clobbering input.
+      if (shouldBeEditing && isCurrentlyEditingInDom) {
+        existing.style.left = a.x + "px";
+        existing.style.top = a.y + "px";
+        existing.style.width = a.w + "px";
+        existing.style.height = a.h + "px";
+        existing.style.zIndex = 9999;
+        continue;
+      }
       
       const bodyChanged = existing.dataset.body !== a.body;
       const titleChanged = existing.dataset.title !== a.title;
       const statusChanged = existing.dataset.status !== a.status;
       const pinChanged = existing.dataset.pinned !== String(a.pinned);
+      const editStateChanged = isCurrentlyEditingInDom !== shouldBeEditing;
       
-      // If content did not change, just update layout styles
-      if (!bodyChanged && !titleChanged && !statusChanged && !pinChanged) {
+      // If content and edit state did not change, just update layout styles
+      if (!bodyChanged && !titleChanged && !statusChanged && !pinChanged && !editStateChanged) {
         existing.style.left = a.x + "px";
         existing.style.top = a.y + "px";
         existing.style.width = a.w + "px";

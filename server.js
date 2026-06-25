@@ -55,7 +55,39 @@ async function readScreen(screenName) {
   let i = 0;
   for (const file of entries) {
     const raw = await readFile(path.join(dir, file), "utf8");
-    const { data, content } = matter(raw);
+    let data = {}, content = raw;
+    try {
+      const parsed = matter(raw);
+      data = parsed.data;
+      content = parsed.content;
+    } catch (err) {
+      console.warn(`  [server] warning: frontmatter parsing failed for ${file}: ${err.message}`);
+      // Fallback parsing if YAML/matter throws (e.g. unquoted colons in values)
+      const idMatch = raw.match(/^id:\s*(.*)$/m);
+      const titleMatch = raw.match(/^title:\s*(.*)$/m);
+      const typeMatch = raw.match(/^type:\s*(.*)$/m);
+      const stageMatch = raw.match(/^stage:\s*(.*)$/m);
+      const statusMatch = raw.match(/^status:\s*(.*)$/m);
+      const sourceMatch = raw.match(/^source:\s*(.*)$/m);
+      const pinnedMatch = raw.match(/^pinned:\s*(.*)$/m);
+
+      const cleanVal = (s) => s ? s.trim().replace(/^['"]|['"]$/g, "") : null;
+
+      data = {
+        id: cleanVal(idMatch ? idMatch[1] : null),
+        title: cleanVal(titleMatch ? titleMatch[1] : null),
+        type: cleanVal(typeMatch ? typeMatch[1] : null),
+        stage: stageMatch ? parseInt(stageMatch[1]) : null,
+        status: cleanVal(statusMatch ? statusMatch[1] : null),
+        source: cleanVal(sourceMatch ? sourceMatch[1] : null),
+        pinned: pinnedMatch ? pinnedMatch[1].trim() === "true" : false
+      };
+
+      const parts = raw.split(/---\r?\n/);
+      if (parts.length >= 3) {
+        content = parts.slice(2).join("---");
+      }
+    }
     const id = data.id || file.replace(/\.md$/, "");
     const lay = layout[id] || {};
     const col = i % 3, row = Math.floor(i / 3);
@@ -67,7 +99,15 @@ async function readScreen(screenName) {
         const srcPath = safePath(data.source);
         if (existsSync(srcPath)) {
           const srcRaw = await readFile(srcPath, "utf8");
-          const parsedSrc = matter(srcRaw);
+          let parsedSrc = { data: {}, content: srcRaw };
+          try {
+            parsedSrc = matter(srcRaw);
+          } catch (e) {
+            const titleMatch = srcRaw.match(/^title:\s*(.*)$/m);
+            parsedSrc.data = titleMatch ? { title: titleMatch[1].trim().replace(/^['"]|['"]$/g, "") } : {};
+            const parts = srcRaw.split(/---\r?\n/);
+            if (parts.length >= 3) parsedSrc.content = parts.slice(2).join("---");
+          }
           body = parsedSrc.content.trim();
         }
       } catch (err) {
@@ -104,8 +144,39 @@ async function buildState() {
 async function writeCard(screen, id, { title, body }) {
   const file = path.join(SCREENS_DIR, screen, `${id}.md`);
   const raw = await readFile(file, "utf8");
-  const parsed = matter(raw);
-  const data = { ...parsed.data };
+  let data = {}, content = raw;
+  try {
+    const parsed = matter(raw);
+    data = { ...parsed.data };
+    content = parsed.content;
+  } catch (err) {
+    console.warn(`  [server] writeCard: parsing failed for ${id}.md, fallback to regex parsing.`);
+    const idMatch = raw.match(/^id:\s*(.*)$/m);
+    const titleMatch = raw.match(/^title:\s*(.*)$/m);
+    const typeMatch = raw.match(/^type:\s*(.*)$/m);
+    const stageMatch = raw.match(/^stage:\s*(.*)$/m);
+    const statusMatch = raw.match(/^status:\s*(.*)$/m);
+    const sourceMatch = raw.match(/^source:\s*(.*)$/m);
+    const pinnedMatch = raw.match(/^pinned:\s*(.*)$/m);
+
+    const cleanVal = (s) => s ? s.trim().replace(/^['"]|['"]$/g, "") : null;
+
+    data = {
+      id: cleanVal(idMatch ? idMatch[1] : null) || id,
+      title: cleanVal(titleMatch ? titleMatch[1] : null) || id,
+      type: cleanVal(typeMatch ? typeMatch[1] : null),
+      stage: stageMatch ? parseInt(stageMatch[1]) : null,
+      status: cleanVal(statusMatch ? statusMatch[1] : null),
+      source: cleanVal(sourceMatch ? sourceMatch[1] : null),
+      pinned: pinnedMatch ? pinnedMatch[1].trim() === "true" : false
+    };
+
+    const parts = raw.split(/---\r?\n/);
+    if (parts.length >= 3) {
+      content = parts.slice(2).join("---");
+    }
+  }
+
   if (title != null) data.title = title;
   data.updated = new Date().toISOString().slice(0, 19);
 
@@ -115,7 +186,15 @@ async function writeCard(screen, id, { title, body }) {
       let srcData = {};
       if (existsSync(srcPath)) {
         const srcRaw = await readFile(srcPath, "utf8");
-        const parsedSrc = matter(srcRaw);
+        let parsedSrc = { data: {}, content: srcRaw };
+        try {
+          parsedSrc = matter(srcRaw);
+        } catch (e) {
+          const titleMatch = srcRaw.match(/^title:\s*(.*)$/m);
+          parsedSrc.data = titleMatch ? { title: titleMatch[1].trim().replace(/^['"]|['"]$/g, "") } : {};
+          const parts = srcRaw.split(/---\r?\n/);
+          if (parts.length >= 3) parsedSrc.content = parts.slice(2).join("---");
+        }
         srcData = { ...parsedSrc.data };
       }
       await writeFile(srcPath, matter.stringify(body, srcData));
@@ -124,10 +203,10 @@ async function writeCard(screen, id, { title, body }) {
       console.error(`  [server] failed to write to source file for card ${id}: ${err.message}`);
     }
     // Update the card file itself with new title/updated metadata, keeping its own body unchanged
-    await writeFile(file, matter.stringify(parsed.content, data));
+    await writeFile(file, matter.stringify(content, data));
   } else {
     // Normal card: write body to the card file itself
-    await writeFile(file, matter.stringify(body ?? parsed.content, data));
+    await writeFile(file, matter.stringify(body ?? content, data));
   }
 }
 

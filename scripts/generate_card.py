@@ -138,9 +138,10 @@ def main():
         html_body = TEMPLATES["chart"].format(prompt=prompt, chart_bars="\n".join(bars))
 
     # Frontmatter
+    import json
     frontmatter = f"""---
 id: {os.path.splitext(id_name)[0]}
-title: {title}
+title: {json.dumps(title)}
 type: interactive
 status: blocked
 updated: '{datetime.datetime.now().isoformat(timespec='seconds')}'
